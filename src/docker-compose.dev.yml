@@ -1,0 +1,56 @@
+# 概要:
+# 開発環境用オーバーライドファイル。docker-compose.ymlの設定を上書き・追加する。
+# 開発しやすさ（ホットリロード・詳細エラー表示・DBへの直接接続）を重視した設定。
+# 使い方: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  frontend:
+    build:
+      # target:Dockerfileのどのステージまでビルドするかを指定する。
+      # builderステージ（Node.js環境）だけを使用してVite開発サーバーを起動する。
+      # 本番ではtargetを指定しないことでDockerfileの最終ステージ（nginx）が使われる。
+      target: builder
+    # ports:「ホスト側ポート:コンテナ側ポート」の形式でポートを公開する。
+    # ブラウザから http://localhost:5173 でアクセスできるようになる。
+    ports:
+      - "5173:5173"
+    # volumes:ホストとコンテナ間のファイル共有・保護を定義する。
+    # 書き方は2種類ある:
+    #   バインドマウント: 「ホスト側パス:コンテナ側パス」→ ホストとコンテナを同期する
+    #   匿名ボリューム:  「コンテナ側パスのみ」          → Dockerが管理する領域で保護する
+    # Dockerはより具体的なパスが優先されるため、/app と /app/node_modules が競合した場合、
+    # /app/node_modules の匿名ボリュームが優先される。
+    volumes:
+      # [バインドマウント] ホスト側パス:コンテナ側パス
+      # ホストの./frontendをコンテナ内の/appにリアルタイム同期する。
+      # ファイルを保存した瞬間にコンテナ内に反映され、ホットリロードが機能する。
+      - ./frontend:/app
+      # [匿名ボリューム] コンテナ側パスのみ（名前はDockerが自動生成）
+      # /app全体がホストと同期されると/app/node_modulesもホスト側で上書きされてしまう。
+      # 匿名ボリュームで/app/node_modulesを保護し、コンテナ内でインストールしたものを使い続ける。
+      # ※匿名ボリュームはコンテナ削除時に一緒に削除される（名前付きボリュームは残る）。
+      - /app/node_modules
+    # command:コンテナ起動時に実行するコマンド。Dockerfileのデフォルト命令を上書きする。
+    # --host:コンテナ外（ホストのブラウザ）からアクセスできるようにネットワークを開放する。
+    command: npm run dev -- --host
+    environment:
+      # Node.jsに「開発モードで動かす」と伝える環境変数。
+      # ライブラリがこの値を見て詳細なエラー表示やデバッグ情報の出力などを有効にする。
+      - NODE_ENV=development
+
+  backend:
+    ports:
+      # ブラウザから http://localhost:8080 でAPIにアクセスできるようになる。
+      - "8080:8080"
+    environment:
+      # ASP.NET Coreに「開発環境で動かす」と伝える環境変数。
+      # Swagger UI（API仕様書画面）の有効化、詳細エラーページの表示、
+      # appsettings.Development.jsonの読み込みなどが有効になる。
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  db:
+    ports:
+      # 開発時のみDBポートを外部公開する。
+      # TablePlusやDBeaverなどのDBクライアントからlocalhost:5432で直接接続・操作できる。
+      # 本番ではセキュリティのためポートを公開しない。
+      - "5432:5432"

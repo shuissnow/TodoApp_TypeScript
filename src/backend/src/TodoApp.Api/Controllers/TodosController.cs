@@ -1,0 +1,92 @@
+using Microsoft.AspNetCore.Mvc;
+using TodoApp.Api.DTOs;
+using TodoApp.Api.Models;
+using TodoApp.Api.Services;
+
+namespace TodoApp.Api.Controllers;
+
+/// <summary>
+/// Todo APIコントローラー
+/// </summary>
+[ApiController]
+[Route("api/todos")]
+[Produces("application/json")]
+public class TodosController(ITodoService service) : ControllerBase
+{
+    /// <summary>
+    /// タスク一覧を取得します。
+    /// </summary>
+    /// <returns>全Todoリスト</returns>
+    /// <response code="200">正常取得</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<Todo>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
+    {
+        var todos = await service.GetAllAsync();
+        return Ok(todos);
+    }
+
+    /// <summary>
+    /// タスクを作成します。
+    /// </summary>
+    /// <param name="request">作成内容</param>
+    /// <returns>作成されたTodo</returns>
+    /// <response code="201">作成成功</response>
+    /// <response code="400">バリデーションエラー</response>
+    [HttpPost]
+    [ProducesResponseType(typeof(Todo), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Create([FromBody] CreateTodoRequest request)
+    {
+        var todo = await service.CreateAsync(request);
+        return CreatedAtAction(nameof(GetAll), new { id = todo.Id }, todo);
+    }
+
+    /// <summary>
+    /// 指定したIDのタスクを更新します。
+    /// </summary>
+    /// <param name="id">TodoのID</param>
+    /// <param name="request">更新内容</param>
+    /// <returns>更新後のTodo</returns>
+    /// <response code="200">更新成功</response>
+    /// <response code="400">バリデーションエラー</response>
+    /// <response code="404">対象Todoが存在しない</response>
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(Todo), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTodoRequest request)
+    {
+        var todo = await service.UpdateAsync(id, request);
+        if (todo is null) return NotFound();
+        return Ok(todo);
+    }
+
+    /// <summary>
+    /// 完了済みタスクをすべて削除します。
+    /// </summary>
+    /// <response code="204">削除成功</response>
+    [HttpDelete("completed")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteCompleted()
+    {
+        await service.DeleteCompletedAsync();
+        return NoContent();
+    }
+
+    /// <summary>
+    /// 指定したIDのタスクを削除します。
+    /// </summary>
+    /// <param name="id">TodoのID</param>
+    /// <response code="204">削除成功</response>
+    /// <response code="404">対象Todoが存在しない</response>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var deleted = await service.DeleteAsync(id);
+        if (!deleted) return NotFound();
+        return NoContent();
+    }
+}

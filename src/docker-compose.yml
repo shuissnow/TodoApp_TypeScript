@@ -1,0 +1,65 @@
+# 概要:
+# 複数のコンテナをまとめて定義・起動するためのベース設定ファイル（開発・本番共通）
+# docker-composeコマンド実行時に同階層の.envを読み込む。
+# 使い方:
+#   開発: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   本番: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+# services:起動するコンテナの一覧を定義する。
+services:
+  # コンテナ1
+  frontend:
+    # build:Dockerからイメージをビルドする。
+    build:
+      # context:Dockerfileが存在するパスを指定する。
+      context: ./frontend
+
+  # コンテナ2
+  backend:
+    # build:Dockerからイメージをビルドする。
+    build:
+      # context:Dockerfileが存在するパスを指定する。
+      context: ./backend
+    # environment:コンテナ内に渡す環境変数を定義する。
+    environment:
+      # C#（ASP.NET Core）がDBに接続するための接続文字列。
+      # Host=db はdbコンテナ名を指す（Docker内ではサービス名でアクセスできる）。
+      # ${} の値は .env ファイルから展開される。
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    # depends_on:起動順序の制御を行う。
+    depends_on:
+      db:
+        # service_healthy:dbのhealthcheckが成功してからbackendを起動する。
+        # DBが初期化完了前にbackendが接続エラーを起こすのを防ぐ。
+        condition: service_healthy
+
+  # コンテナ3
+  db:
+    # image:自前でビルドせず Docker Hub の既製イメージを使用する。
+    # postgres:16-alpine の alpine はサイズが小さい軽量Linux（Alpine Linux）ベース。
+    image: postgres:16-alpine
+    # PostgreSQLの初期設定。初回起動時にDB・ユーザーが自動作成される。
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # postgres_data（名前付きボリューム）をコンテナ内のDBデータ保存先にマウントする。
+      # コンテナを削除してもボリュームは残るため、DBのデータが消えない。
+      - postgres_data:/var/lib/postgresql/data
+    # healthcheck:DBが「本当に使える状態か」を定期チェックする。
+    healthcheck:
+      # pg_isready:PostgreSQLが接続を受け付けられる状態か確認するコマンド。
+      # 終了コード0（成功）でhealthyと判定され、backendの起動が始まる。
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      # interval:チェックの実行間隔。
+      interval: 5s
+      # timeout:この時間内に応答がなければ失敗と判定する。
+      timeout: 5s
+      # retries:この回数連続して失敗するとunhealthyと判定する。
+      retries: 5
+
+# volumes:コンテナ間・コンテナ外でデータを永続化するための保存領域を定義する。
+volumes:
+  # Dockerが管理する名前付きボリューム。DBデータの永続化に使用。
+  postgres_data:

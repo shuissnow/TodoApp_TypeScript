@@ -1,0 +1,34 @@
+# 概要:
+# 本番環境用オーバーライドファイル。docker-compose.ymlの設定を上書き・追加する。
+# セキュリティとパフォーマンスを重視した設定。
+# -d（デタッチモード）でバックグラウンド起動するのが一般的。
+# 使い方: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  frontend:
+    # target を指定しないことで Dockerfile の最終ステージ（nginx）が使われる。
+    # devではbuilderステージ（Vite開発サーバー）を使うが、
+    # 本番ではnginxがビルド済みの静的ファイル（HTML/CSS/JS）を配信する。
+    ports:
+      # 本番では標準のHTTPポート80を公開する。
+      # ブラウザから http://ドメイン名 でアクセスできるようになる（ポート番号不要）。
+      - "80:80"
+    # restart:コンテナが停止した場合の再起動ポリシーを指定する。
+    # unless-stopped:手動で停止した場合を除き、異常終了時やDocker再起動時に自動再起動する。
+    restart: unless-stopped
+
+  backend:
+    ports:
+      # 本番ではfrontend（nginx）からのリクエストをAPIに転送するためポートを公開する。
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      # ASP.NET Coreに「本番環境で動かす」と伝える環境変数。
+      # Swagger UIの無効化、エラー詳細の非表示、appsettings.Production.jsonの読み込みなどが有効になる。
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  db:
+    # 本番ではDBのポートを外部に公開しない。
+    # backendコンテナからのコンテナ間通信のみ許可することで、
+    # 外部から直接DBに接続できないようにしセキュリティを確保する。
+    restart: unless-stopped
