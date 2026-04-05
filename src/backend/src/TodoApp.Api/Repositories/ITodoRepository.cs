@@ -35,10 +35,11 @@ public interface ITodoRepository
     Task<Todo> UpdateAsync(Todo todo);
 
     /// <summary>
-    /// タスクを削除します。
+    /// 指定したIDのタスクを削除します。
     /// </summary>
-    /// <param name="todo">削除するTodo</param>
-    Task DeleteAsync(Todo todo);
+    /// <param name="id">TodoのID</param>
+    /// <returns>削除できた場合は true。存在しない場合は false。</returns>
+    Task<bool> DeleteAsync(Guid id);
 
     /// <summary>
     /// 完了済みタスクをすべて削除します。

@@ -54,14 +54,7 @@ public class TodoService(ITodoRepository repository) : ITodoService
     /// </summary>
     /// <param name="id">TodoのID</param>
     /// <returns>削除できた場合は true。存在しない場合は false。</returns>
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        Todo? todo = await repository.GetByIdAsync(id);
-        if (todo is null) return false;
-
-        await repository.DeleteAsync(todo);
-        return true;
-    }
+    public Task<bool> DeleteAsync(Guid id) => repository.DeleteAsync(id);
 
     /// <summary>
     /// 完了済みタスクをすべて削除します。

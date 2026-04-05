@@ -105,21 +105,6 @@ public IEnumerable<Todo> GetAll() { ... }
 public async Task<Todo?> GetByIdAsync(int id) { ... }
 ```
 
-### 変数の型
-
-基本的にはvarを用いないこととする。例外としてforeachではvarを用いる。
-
-```C#
-// NG
-var count = 0;
-var name = "john"
-// OK
-int count = 0;
-string name = "John"
-```
-
-
-
 ---
 
 ## 単体テスト方針

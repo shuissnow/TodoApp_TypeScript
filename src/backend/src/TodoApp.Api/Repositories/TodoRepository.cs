@@ -47,13 +47,14 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     }
 
     /// <summary>
-    /// タスクを削除します。
+    /// 指定したIDのタスクを削除します。
     /// </summary>
-    /// <param name="todo">削除するTodo</param>
-    public async Task DeleteAsync(Todo todo)
+    /// <param name="id">TodoのID</param>
+    /// <returns>削除できた場合は true。存在しない場合は false。</returns>
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        context.Todos.Remove(todo);
-        await context.SaveChangesAsync();
+        int affectedRows = await context.Todos.Where(t => t.Id == id).ExecuteDeleteAsync();
+        return affectedRows > 0;
     }
 
     /// <summary>
@@ -61,8 +62,6 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// </summary>
     public async Task DeleteCompletedAsync()
     {
-        List<Todo> completed = await context.Todos.Where(t => t.Completed).ToListAsync();
-        context.Todos.RemoveRange(completed);
-        await context.SaveChangesAsync();
+        await context.Todos.Where(t => t.Completed).ExecuteDeleteAsync();
     }
 }

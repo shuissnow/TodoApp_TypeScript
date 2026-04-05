@@ -143,24 +143,25 @@ public class TodoServiceTests
     [Fact]
     public async Task DeleteAsync_ReturnsFalse_WhenTodoNotFound()
     {
-        _repositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Todo?)null);
+        Guid id = Guid.NewGuid();
+        _repositoryMock.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
 
-        bool result = await _sut.DeleteAsync(Guid.NewGuid());
+        bool result = await _sut.DeleteAsync(id);
 
         Assert.False(result);
+        _repositoryMock.Verify(r => r.DeleteAsync(id), Times.Once);
     }
 
     [Fact]
     public async Task DeleteAsync_ReturnsTrue_WhenTodoDeleted()
     {
-        Todo todo = new Todo { Id = Guid.NewGuid(), Text = "タスク", Completed = false, CreatedAt = DateTime.UtcNow };
-        _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
-        _repositoryMock.Setup(r => r.DeleteAsync(todo)).Returns(Task.CompletedTask);
+        Guid id = Guid.NewGuid();
+        _repositoryMock.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
 
-        bool result = await _sut.DeleteAsync(todo.Id);
+        bool result = await _sut.DeleteAsync(id);
 
         Assert.True(result);
-        _repositoryMock.Verify(r => r.DeleteAsync(todo), Times.Once);
+        _repositoryMock.Verify(r => r.DeleteAsync(id), Times.Once);
     }
 
     // --- DeleteCompletedAsync ---
