@@ -63,6 +63,7 @@ using (IServiceScope scope = app.Services.CreateScope())
 // 開発環境のみ OpenAPI 仕様と Scalar UI を公開する
 if (app.Environment.IsDevelopment())
 {
+    // JSONにシリアル化されたOpenAPIドキュメントを表示するためのエンドポイントをアプリに追加する。
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
