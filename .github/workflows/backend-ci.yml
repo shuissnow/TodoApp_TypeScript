@@ -1,21 +1,22 @@
 name: Backend CI
 
+# PRがmainブランチへ向けて作成・更新されたとき、かつバックエンドのファイルに変更がある場合のみ実行
 on:
-  # ✅ 改善1: PRトリガーを追加 → mainへのPR作成・更新時にもCIが走る
   pull_request:
-    branches:
-      - main
-    paths:
-      - "src/backend/**"
-  push:
-    branches:
-      - main
-    paths:
-      - "src/backend/**"
+    branches: [main]
+    paths: ["src/backend/**"]
+
+# 同一PRに複数のコミットが積まれた場合、古い実行をキャンセルして最新のみ実行する
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-24.04
+    permissions:
+      checks: write  # dorny/test-reporter がChecks APIにテスト結果を書き込むために必要
 
     steps:
       - name: Checkout repository
@@ -30,39 +31,79 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          # lockファイルをキーにすることで、依存関係が変わった場合のみキャッシュを再生成
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys:
-            ${{ runner.os }}-nuget-
+          # src/backend 配下の .csproj が変更されたときのみキャッシュを再生成する
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/backend/**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Cache .NET tools
+        # dotnet tool install は初回のみ実行され、以降はキャッシュから復元されるため高速化できる
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: dotnet-tools-reportgenerator-${{ runner.os }}
 
       - name: Restore dependencies
         working-directory: src/backend
         run: dotnet restore TodoApp.sln
 
+      - name: Format check
+        # フォーマット違反・命名規則違反があれば差分を表示して失敗させる
+        working-directory: src/backend
+        run: dotnet format TodoApp.sln --verify-no-changes --no-restore
+
       - name: Build
         working-directory: src/backend
-        run: dotnet build TodoApp.sln --no-restore --configuration Release
+        run: |
+          dotnet build TodoApp.sln \
+            --no-restore \         # Restore dependenciesで復元済みのため省略
+            --configuration Release
 
       - name: Run tests
         working-directory: src/backend
         run: |
           dotnet test TodoApp.sln \
-            --no-build \
+            --no-build \                                          # Buildでビルド済みのため省略
             --configuration Release \
-            --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage" \
+            --logger "trx;LogFileName=test-results.trx" \        # Visual Studio互換の .trx 形式でテスト結果を出力
+            --collect:"XPlat Code Coverage" \                    # クロスプラットフォーム対応のコードカバレッジを収集（Cobertura形式）
             --results-directory ./test-results
 
       - name: Upload test results
+        # テスト失敗時もアーティファクトをアップロードするため if: always() を指定
         uses: actions/upload-artifact@v4
-        if: always() # テストが失敗しても必ずアップロードする
+        if: always()
         with:
           name: test-results
-          path: ./test-results/**/*.trx
+          path: src/backend/test-results/**/*.trx
+
+      - name: Report test results
+        # .trx ファイルを解析し、GitHubのChecks画面にテスト結果（成功/失敗件数・スタックトレース）を表示する
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: src/backend/test-results/**/*.trx
+          reporter: dotnet-trx
+
+      - name: Install ReportGenerator
+        # キャッシュヒット時は既インストール済みのためエラーになる場合があるため || true で無視する
+        if: always()
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool 2>/dev/null || true
+
+      - name: Generate coverage report
+        # Cobertura XML からHTMLカバレッジレポートを生成する
+        # テスト失敗時でもカバレッジデータが出力されている場合があるため if: always() を指定
+        if: always()
+        working-directory: src/backend
+        run: |
+          reportgenerator \
+            -reports:"./test-results/**/coverage.cobertura.xml" \
+            -targetdir:"./test-results/coverage-report" \
+            -reporttypes:"Html;Cobertura"   # Html: ブラウザで確認可能なレポート / Cobertura: 他ツールとの連携用
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
-          path: ./test-results/**/coverage.cobertura.xml
+          path: src/backend/test-results/coverage-report/
