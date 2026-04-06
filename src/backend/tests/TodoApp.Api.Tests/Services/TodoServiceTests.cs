@@ -8,6 +8,7 @@ namespace TodoApp.Api.Tests.Services;
 
 public class TodoServiceTests
 {
+    // CI確認用version1
     private readonly Mock<ITodoRepository> _repositoryMock = new();
     private readonly TodoService _sut;
 
@@ -19,7 +20,7 @@ public class TodoServiceTests
     // --- GetAllAsync ---
 
     [Fact]
-    public async Task GetAllAsync_ReturnsAllTodos()
+    public async Task GetAllAsyncReturnsAllTodos()
     {
         List<Todo> todos = new List<Todo>
         {
@@ -36,7 +37,7 @@ public class TodoServiceTests
     // --- CreateAsync ---
 
     [Fact]
-    public async Task CreateAsync_CreatesAndReturnsTodo()
+    public async Task CreateAsyncCreatesAndReturnsTodo()
     {
         CreateTodoRequest request = new CreateTodoRequest { Text = "新しいタスク" };
         _repositoryMock
@@ -51,7 +52,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_TrimsWhitespaceFromText()
+    public async Task CreateAsyncTrimsWhitespaceFromText()
     {
         CreateTodoRequest request = new CreateTodoRequest { Text = "  スペースあり  " };
         _repositoryMock
@@ -64,7 +65,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_SetsCreatedAtToUtcNow()
+    public async Task CreateAsyncSetsCreatedAtToUtcNow()
     {
         DateTime before = DateTime.UtcNow;
         CreateTodoRequest request = new CreateTodoRequest { Text = "タスク" };
@@ -81,7 +82,7 @@ public class TodoServiceTests
     // --- UpdateAsync ---
 
     [Fact]
-    public async Task UpdateAsync_ReturnsNull_WhenTodoNotFound()
+    public async Task UpdateAsyncReturnsNullWhenTodoNotFound()
     {
         _repositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Todo?)null);
 
@@ -91,7 +92,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesText_WhenTextProvided()
+    public async Task UpdateAsyncUpdatesTextWhenTextProvided()
     {
         Todo todo = new Todo { Id = Guid.NewGuid(), Text = "元のテキスト", Completed = false, CreatedAt = DateTime.UtcNow };
         _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
@@ -103,7 +104,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesCompleted_WhenCompletedProvided()
+    public async Task UpdateAsyncUpdatesCompletedWhenCompletedProvided()
     {
         Todo todo = new Todo { Id = Guid.NewGuid(), Text = "タスク", Completed = false, CreatedAt = DateTime.UtcNow };
         _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
@@ -115,7 +116,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_DoesNotChangeText_WhenTextIsNull()
+    public async Task UpdateAsyncDoesNotChangeTextWhenTextIsNull()
     {
         Todo todo = new Todo { Id = Guid.NewGuid(), Text = "元のテキスト", Completed = false, CreatedAt = DateTime.UtcNow };
         _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
@@ -127,7 +128,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_TrimsWhitespaceFromText()
+    public async Task UpdateAsyncTrimsWhitespaceFromText()
     {
         Todo todo = new Todo { Id = Guid.NewGuid(), Text = "元", Completed = false, CreatedAt = DateTime.UtcNow };
         _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
@@ -141,7 +142,7 @@ public class TodoServiceTests
     // --- DeleteAsync ---
 
     [Fact]
-    public async Task DeleteAsync_ReturnsFalse_WhenTodoNotFound()
+    public async Task DeleteAsyncReturnsFalseWhenTodoNotFound()
     {
         Guid id = Guid.NewGuid();
         _repositoryMock.Setup(r => r.DeleteAsync(id)).ReturnsAsync(false);
@@ -153,7 +154,7 @@ public class TodoServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_ReturnsTrue_WhenTodoDeleted()
+    public async Task DeleteAsyncReturnsTrueWhenTodoDeleted()
     {
         Guid id = Guid.NewGuid();
         _repositoryMock.Setup(r => r.DeleteAsync(id)).ReturnsAsync(true);
@@ -167,7 +168,7 @@ public class TodoServiceTests
     // --- DeleteCompletedAsync ---
 
     [Fact]
-    public async Task DeleteCompletedAsync_CallsRepositoryDeleteCompleted()
+    public async Task DeleteCompletedAsyncCallsRepositoryDeleteCompleted()
     {
         _repositoryMock.Setup(r => r.DeleteCompletedAsync()).Returns(Task.CompletedTask);
 
