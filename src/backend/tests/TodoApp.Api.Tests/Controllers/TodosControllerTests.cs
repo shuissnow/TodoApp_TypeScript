@@ -6,7 +6,7 @@ using TodoApp.Api.Models;
 using TodoApp.Api.Services;
 
 namespace TodoApp.Api.Tests.Controllers;
-
+// CI動作確認用
 public class TodosControllerTests
 {
     private readonly Mock<ITodoService> _serviceMock = new();
