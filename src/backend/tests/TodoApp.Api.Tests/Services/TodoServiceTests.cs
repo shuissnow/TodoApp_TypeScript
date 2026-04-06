@@ -8,7 +8,7 @@ namespace TodoApp.Api.Tests.Services;
 
 public class TodoServiceTests
 {
-    // CI確認用version1
+    // CI確認用version2
     private readonly Mock<ITodoRepository> _repositoryMock = new();
     private readonly TodoService _sut;
 
