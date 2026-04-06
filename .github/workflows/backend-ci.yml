@@ -56,9 +56,12 @@ jobs:
         working-directory: src/backend
         run: |
           # Restore dependenciesで復元済みのため --no-restore を指定
+          # OpenApiGenerateDocuments=false: ビルド時のOpenAPIドキュメント生成を無効化
+          # （生成処理がアプリを起動しDBへ接続しようとするため、CI環境では不要）
           dotnet build TodoApp.sln \
             --no-restore \
-            --configuration Release
+            --configuration Release \
+            --property:OpenApiGenerateDocuments=false
 
       - name: Run tests
         working-directory: src/backend
