@@ -55,18 +55,22 @@ jobs:
       - name: Build
         working-directory: src/backend
         run: |
+          # Restore dependenciesで復元済みのため --no-restore を指定
           dotnet build TodoApp.sln \
-            --no-restore \         # Restore dependenciesで復元済みのため省略
+            --no-restore \
             --configuration Release
 
       - name: Run tests
         working-directory: src/backend
         run: |
+          # --no-build: Buildでビルド済みのため省略
+          # --logger: Visual Studio互換の .trx 形式でテスト結果を出力
+          # --collect: クロスプラットフォーム対応のコードカバレッジを収集（Cobertura形式）
           dotnet test TodoApp.sln \
-            --no-build \                                          # Buildでビルド済みのため省略
+            --no-build \
             --configuration Release \
-            --logger "trx;LogFileName=test-results.trx" \        # Visual Studio互換の .trx 形式でテスト結果を出力
-            --collect:"XPlat Code Coverage" \                    # クロスプラットフォーム対応のコードカバレッジを収集（Cobertura形式）
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage" \
             --results-directory ./test-results
 
       - name: Upload test results
