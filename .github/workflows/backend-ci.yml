@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        working-directory: src/backend
+        working-directory: src/backend/tests/TodoApp.Api.Tests
         run: dotnet restore TodoApp.sln
 
       - name: Build
