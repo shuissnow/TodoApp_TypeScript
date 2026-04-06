@@ -16,7 +16,8 @@ jobs:
     name: Build & Test
     runs-on: ubuntu-24.04
     permissions:
-      checks: write  # dorny/test-reporter がChecks APIにテスト結果を書き込むために必要
+      contents: read  # actions/checkout がリポジトリを読み取るために必要
+      checks: write   # dorny/test-reporter がChecks APIにテスト結果を書き込むために必要
 
     steps:
       - name: Checkout repository
