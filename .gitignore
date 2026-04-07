@@ -31,11 +31,16 @@ dist-ssr
 .env.production
 .env.staging
 
+# 本番環境設定（実際の接続文字列は環境変数で管理）
+appsettings.Production.json
+
 # .NET / C# build artifacts
 **/bin/
 **/obj/
+**/*.Api.json
 
 # Local tool configurations
 .mcp.json
 .serena/
 .claude/
+src/backend/Instructions/
