@@ -3,7 +3,6 @@ import { fetchTodos, createTodo, updateTodo, deleteTodoById, deleteCompleted } f
 import { createTodoInput } from './components/TodoInput'
 import { createFilterBar } from './components/FilterBar'
 import { createTodoList } from './components/TodoList'
-import { createFooter } from './components/Footer'
 
 /** 全Todoの状態 */
 let todos: Todo[] = []
@@ -102,10 +101,10 @@ export const clearCompleted = async (): Promise<void> => {
 /**
  * フィルターを変更して画面を再描画する
  *
- * @param f - 設定するフィルター種別
+ * @param filterType - 設定するフィルター種別
  */
-export const setFilter = (f: FilterType): void => {
-  filter = f
+export const setFilter = (filterType: FilterType): void => {
+  filter = filterType
   render()
 }
 
@@ -127,39 +126,76 @@ const getFilteredTodos = (): Todo[] => {
  * 描画後に {@link setupEventListeners} を呼んでイベントを再登録する。
  */
 export const render = (): void => {
+  // HTMLのid=appの要素を取得する
   const app = document.querySelector<HTMLDivElement>('#app')
+  //
   if (!app) return
 
+  // filterTypeに応じてTodoリストを取得する。初期値はすべてのTodoリストを取得する。
   const filtered = getFilteredTodos()
 
+  // appのノードを空にする。
   app.replaceChildren()
 
-  const wrapper = document.createElement('div')
-  wrapper.className = 'min-h-screen bg-gray-50 flex items-start justify-center pt-16 px-4'
+  // ページ全体: 縦方向に Header / Body / Footer を並べる
+  const root = document.createElement('div')
+  root.className = 'min-h-screen flex flex-col'
 
-  const card = document.createElement('div')
-  card.className = 'w-full max-w-md bg-white rounded-2xl shadow-sm overflow-hidden'
-
+  // Header
   const header = document.createElement('header')
-  header.className = 'px-4 py-5 border-b border-gray-100'
+  header.className = 'bg-green-100 px-6 py-4 shadow-md'
   const title = document.createElement('h1')
-  title.className = 'text-2xl font-bold text-gray-800 text-center'
+  title.className = 'text-2xl font-bold text-black text-left tracking-wide'
   title.textContent = 'Todo'
   header.appendChild(title)
 
+  // Body(Todoの入力)
+  const body = document.createElement('background')
+  body.className = 'flex-1 bg-gray-100 px-4 py-8'
+
+  // Body(Todoの入力)
+  const card = document.createElement('div')
+  card.className = 'w-full max-w-md mx-auto bg-white rounded-2xl shadow-sm overflow-hidden'
   const inputEl = createTodoInput(isLoading)
   const filterEl = createFilterBar(filter)
   const listEl = createTodoList(filtered, isLoading)
-  const footerEl = createFooter(todos, isLoading)
-
-  card.appendChild(header)
   card.appendChild(inputEl)
   card.appendChild(filterEl)
   card.appendChild(listEl)
-  if (todos.length > 0) card.appendChild(footerEl)
+  body.appendChild(card)
 
-  wrapper.appendChild(card)
-  app.appendChild(wrapper)
+  // Body(Todoの表示欄)
+  const displayTodo = document.createElement('div');
+
+  // === Footer ===
+  const footer = document.createElement('footer')
+  footer.className = 'bg-green-500 px-6 py-3'
+  const footerContent = document.createElement('div')
+  footerContent.className = 'max-w-md mx-auto flex items-center justify-between text-sm text-slate-300'
+
+  const activeCount = todos.filter((t) => !t.completed).length
+  const completedCount = todos.filter((t) => t.completed).length
+
+  const countSpan = document.createElement('span')
+  countSpan.textContent = `${activeCount}件残っています`
+  footerContent.appendChild(countSpan)
+
+  if (completedCount > 0) {
+    const clearBtn = document.createElement('button')
+    clearBtn.type = 'button'
+    clearBtn.id = 'clear-completed-button'
+    clearBtn.textContent = '完了済みを削除'
+    clearBtn.disabled = isLoading
+    clearBtn.className = 'text-slate-400 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+    footerContent.appendChild(clearBtn)
+  }
+
+  footer.appendChild(footerContent)
+
+  root.appendChild(header)
+  root.appendChild(body)
+  root.appendChild(footer)
+  app.appendChild(root)
 
   setupEventListeners()
 }
