@@ -26,9 +26,14 @@ services:
       # ASP.NET Coreに「本番環境で動かす」と伝える環境変数。
       # Swagger UIの無効化、エラー詳細の非表示、appsettings.Production.jsonの読み込みなどが有効になる。
       - ASPNETCORE_ENVIRONMENT=Production
+      # 本番ではローカルのdbコンテナではなく AWS Aurora に接続する。
+      # docker-compose.yml のベース設定（Host=db）をここで上書きする。
+      # AURORA_PASSWORD は .env または OS 環境変数で設定すること（git 管理外）。
+      - ConnectionStrings__DefaultConnection=Host=todoapp-instance-1.cjs8wu6koejm.ap-northeast-1.rds.amazonaws.com;Port=5432;Database=postgres;Username=postgres;Password=${AURORA_PASSWORD};SSL Mode=Require
 
   db:
-    # 本番ではDBのポートを外部に公開しない。
-    # backendコンテナからのコンテナ間通信のみ許可することで、
-    # 外部から直接DBに接続できないようにしセキュリティを確保する。
-    restart: unless-stopped
+    # 本番では Aurora を使うため、ローカル DB コンテナは起動しない。
+    # profiles に "dev" を指定することで、dev プロファイルが有効な場合のみ起動する。
+    # Docker Compose はプロファイルが非アクティブなサービスへの depends_on を自動的にスキップする。
+    profiles:
+      - dev

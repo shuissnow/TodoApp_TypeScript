@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Roslyn アナライザー: Recommended ルールセットを有効化 -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <!-- アナライザー警告をエラーとして扱い CI を失敗させる -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

@@ -1,25 +1,55 @@
 # CLAUDE.md (プロジェクトメモリ)
 
-## 概要
-
-backend開発を進めるうえで遵守すべき標準ルールを定義します。
-
 ## 技術スタック
 
-- **言語:** C# / .NET 9
-- **フレームワーク:** ASP.NET Core Web API
-- **ORM:** Entity Framework Core 9
-- **DB:** PostgreSQL（Npgsql）
-- **テスト:** xUnit + Moq
-- **API ドキュメント:** Microsoft.AspNetCore.OpenApi + Scalar.AspNetCore
+| レイヤー | 技術 |
+|---------|------|
+| 言語・FW | C# / .NET 9 / ASP.NET Core Web API |
+| ORM・DB | Entity Framework Core 9 / PostgreSQL（Npgsql） |
+| テスト | xUnit + Moq |
+| API ドキュメント | Microsoft.AspNetCore.OpenApi + Scalar.AspNetCore |
 
 ---
 
-## 作業単位
+## プロジェクト構造
 
-- 一度に複数ファイルを作成するのではなく最大1ファイルを作成するようにしてください。
-- 一度の作業で複数のメソッドを作成するのではなく、最大一つのメソッドを作成するようにしてください。またメソッドを作成し終えた段階で承認を得るようにしてください。
-- メソッドを作成するときは、以下の内容を踏まえてください。
-  1. コーディング規約に従ってメソッドを記述する。
-  2. 単体テストを書きやすいように依存性注入を活用する。
-- 承認後の手順は `implement-code-csharp` スキルに従ってください。
+```
+src/TodoApp.Api/
+├── Controllers/   # APIエンドポイント
+├── DTOs/          # リクエスト・レスポンス DTO
+├── Data/          # DBコンテキスト・マイグレーション
+├── Models/        # エンティティ
+├── Repositories/  # DBアクセス（インターフェース + 実装）
+├── Services/      # ビジネスロジック（インターフェース + 実装）
+└── Program.cs     # エントリーポイント・DI設定
+
+tests/TodoApp.Api.Tests/
+└── Services/      # テストコード（src/ と同じ構成）
+```
+
+- ビジネスロジックは `Services/` に集約し、`Controllers/` に直接書かない
+- DBアクセスは `Repositories/` に集約し、`Services/` から直接 `DbContext` を呼ばない
+- インターフェースと実装は同一ディレクトリに配置する
+
+---
+
+## 作業ルール
+
+- 各作業の詳細手順は以下のスキルに従う
+
+| 作業内容 | スキル |
+|---------|--------|
+| コード実装 | `implement-code-csharp` |
+| 単体テスト | `implement-unittest-csharp` |
+| リファクタリング | `refactor-code-csharp` |
+| SQL・マイグレーション | `implement-sql` |
+| コード解説 | `explain-code-csharp` |
+
+---
+
+## API ドキュメント（Scalar / OpenAPI）
+
+| 用途 | URL |
+|------|-----|
+| Scalar UI（API テスト） | `http://localhost:5243/scalar/v1` |
+| OpenAPI 仕様 JSON | `http://localhost:5243/openapi/v1.json` |
