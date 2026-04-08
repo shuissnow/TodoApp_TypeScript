@@ -1,25 +1,5 @@
-import type { Priority, Todo } from '../../types/todo'
-
-/**
- * 優先度バッジのDOM要素を生成する
- *
- * @param priority - 優先度（未設定の場合は「低」として扱う）
- * @returns バッジの `<span>` 要素
- */
-const createPriorityBadge = (priority: Priority | undefined): HTMLElement => {
-  const badge = document.createElement('span')
-  const resolved = priority ?? 'low'
-  const label = resolved === 'high' ? '高' : resolved === 'mid' ? '中' : '低'
-  const colorClass =
-    resolved === 'high'
-      ? 'bg-red-50 text-red-700'
-      : resolved === 'mid'
-        ? 'bg-amber-50 text-amber-700'
-        : 'bg-green-50 text-green-700'
-  badge.textContent = label
-  badge.className = `${colorClass} text-xs font-medium px-2 py-0.5 rounded-full`
-  return badge
-}
+import type { Todo } from '../../types/todo'
+import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers'
 
 /**
  * チェックボタン（円形）のDOM要素を生成する
@@ -172,27 +152,7 @@ export const createTaskListView = (todos: Todo[], isLoading: boolean): HTMLEleme
   wrapper.appendChild(table)
 
   if (isLoading) {
-    const overlay = document.createElement('div')
-    overlay.className = 'absolute inset-0 bg-white/70 flex items-center justify-center'
-    const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    spinner.setAttribute('class', 'animate-spin h-6 w-6 text-green-600')
-    spinner.setAttribute('fill', 'none')
-    spinner.setAttribute('viewBox', '0 0 24 24')
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-    circle.setAttribute('class', 'opacity-25')
-    circle.setAttribute('cx', '12')
-    circle.setAttribute('cy', '12')
-    circle.setAttribute('r', '10')
-    circle.setAttribute('stroke', 'currentColor')
-    circle.setAttribute('stroke-width', '4')
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    path.setAttribute('class', 'opacity-75')
-    path.setAttribute('fill', 'currentColor')
-    path.setAttribute('d', 'M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z')
-    spinner.appendChild(circle)
-    spinner.appendChild(path)
-    overlay.appendChild(spinner)
-    wrapper.appendChild(overlay)
+    wrapper.appendChild(createLoadingOverlay())
   }
 
   return wrapper

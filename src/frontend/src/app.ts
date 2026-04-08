@@ -7,6 +7,7 @@ import { createTaskBoardView } from './components/organisms/TaskBoardView'
 import { createFooter } from './components/organisms/Footer'
 import { createHeader } from './components/organisms/Header'
 import { createAppLayout } from './components/templates/AppLayout'
+import { DOM_IDS } from './utils/domIds'
 
 /** 全Todoの状態 */
 let todos: Todo[] = []
@@ -141,7 +142,7 @@ const getFilteredTodos = (): Todo[] => {
  * 描画後に {@link setupEventListeners} を呼んでイベントを再登録する。
  */
 export const render = (): void => {
-  const app = document.querySelector<HTMLDivElement>('#app')
+  const app = document.querySelector<HTMLDivElement>(DOM_IDS.APP)
   if (!app) return
 
   // フィルターされたTodoを取得する。
@@ -192,8 +193,8 @@ export const render = (): void => {
  * - チェックボタンのクリック → {@link toggleTodo}
  */
 const setupEventListeners = (): void => {
-  const input = document.querySelector<HTMLInputElement>('#todo-text-input')
-  const addButton = document.querySelector<HTMLButtonElement>('#todo-add-button')
+  const input = document.querySelector<HTMLInputElement>(DOM_IDS.TODO_TEXT_INPUT)
+  const addButton = document.querySelector<HTMLButtonElement>(DOM_IDS.ADD_TODO_BTN)
 
   input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -210,7 +211,7 @@ const setupEventListeners = (): void => {
   })
 
   document
-    .querySelector<HTMLButtonElement>('#view-toggle-button')
+    .querySelector<HTMLButtonElement>(DOM_IDS.VIEW_TOGGLE_BTN)
     ?.addEventListener('click', () => {
       toggleViewType()
     })
@@ -243,6 +244,4 @@ const initApp = async (): Promise<void> => {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  void initApp()
-})
+export { initApp }

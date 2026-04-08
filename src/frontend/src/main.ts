@@ -1,9 +1,9 @@
 import './styles/main.css'
-import { render } from './app'
+import { initApp } from './app'
 
 /**
- * DOMの読み込み完了後にアプリを初回描画する
+ * DOMの読み込み完了後にアプリを初期化する
  */
 document.addEventListener('DOMContentLoaded', () => {
-  render()
+  void initApp()
 })

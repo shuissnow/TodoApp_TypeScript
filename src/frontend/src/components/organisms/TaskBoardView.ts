@@ -1,44 +1,14 @@
-import type { Priority, Todo } from '../../types/todo'
+import type { Todo } from '../../types/todo'
+import { createPriorityBadge } from '../../utils/uiHelpers'
 
-/** カンバム列の定義 */
+/** カンバン列の定義 */
 interface BoardColumn {
   label: string
   todos: Todo[]
 }
 
 /**
- * 優先度バッジのDOM要素を生成する
- *
- * @param priority - 優先度（未設定の場合は「低」として扱う）
- * @returns バッジの `<span>` 要素
- */
-const createPriorityBadge = (priority: Priority | undefined): HTMLElement => {
-  const badge = document.createElement('span')
-  const resolved = priority ?? 'low'
-
-  let label: string
-  let colorClass: string
-  switch (resolved) {
-    case 'high':
-      label = '高'
-      colorClass = 'bg-red-50 text-red-700'
-      break
-    case 'mid':
-      label = '中'
-      colorClass = 'bg-amber-50 text-amber-700'
-      break
-    default:
-      label = '低'
-      colorClass = 'bg-green-50 text-green-700'
-  }
-
-  badge.textContent = label
-  badge.className = `${colorClass} text-xs font-medium px-2 py-0.5 rounded-full`
-  return badge
-}
-
-/**
- * カンバムカードのDOM要素を生成する
+ * カンバンカードのDOM要素を生成する
  *
  * @param todo - 表示するTodo
  * @returns カードの `<div>` 要素
@@ -69,7 +39,7 @@ const createCard = (todo: Todo): HTMLElement => {
 }
 
 /**
- * カンバム列のDOM要素を生成する
+ * カンバン列のDOM要素を生成する
  *
  * @param column - 列定義（ラベルとTodo配列）
  * @returns 列の `<div>` 要素
@@ -115,7 +85,7 @@ const createColumn = (column: BoardColumn): HTMLElement => {
 }
 
 /**
- * カンバムボードのDOM要素を生成する
+ * カンバンボードのDOM要素を生成する
  *
  * 3列構成: 未着手（未完了）/ 進行中（プレースホルダー）/ 完了
  *
