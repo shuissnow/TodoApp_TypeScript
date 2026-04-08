@@ -1,4 +1,4 @@
-import type { ViewType } from '../types/todo'
+import type { ViewType } from '../../types/todo'
 
 /**
  * ビュー切り替えボタンのDOM要素を生成する
@@ -18,8 +18,7 @@ export const createViewToggle = (viewType: ViewType): HTMLElement => {
   button.id = 'view-toggle-button'
   button.className =
     'w-8 h-8 border border-green-400 rounded-lg bg-green-50 text-green-800 hover:bg-green-200 transition-colors flex items-center justify-center'
-  button.title =
-    viewType === 'list' ? 'ボード表示に切り替え' : 'リスト表示に切り替え'
+  button.title = viewType === 'list' ? 'ボード表示に切り替え' : 'リスト表示に切り替え'
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('width', '16')

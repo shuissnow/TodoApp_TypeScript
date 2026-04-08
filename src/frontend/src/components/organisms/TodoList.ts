@@ -1,5 +1,5 @@
-import type { Todo } from '../types/todo'
-import { createTodoItem } from './TodoItem'
+import type { Todo } from '../../types/todo'
+import { createTodoItem } from '../molecules/TodoItem'
 
 /**
  * ローディングオーバーレイ（SVGスピナー）のDOM要素を生成する

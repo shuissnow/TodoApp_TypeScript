@@ -1,4 +1,4 @@
-import type { Priority, Todo } from '../types/todo'
+import type { Priority, Todo } from '../../types/todo'
 
 /** カンバム列の定義 */
 interface BoardColumn {
@@ -15,13 +15,23 @@ interface BoardColumn {
 const createPriorityBadge = (priority: Priority | undefined): HTMLElement => {
   const badge = document.createElement('span')
   const resolved = priority ?? 'low'
-  const label = resolved === 'high' ? '高' : resolved === 'mid' ? '中' : '低'
-  const colorClass =
-    resolved === 'high'
-      ? 'bg-red-50 text-red-700'
-      : resolved === 'mid'
-        ? 'bg-amber-50 text-amber-700'
-        : 'bg-green-50 text-green-700'
+
+  let label: string
+  let colorClass: string
+  switch (resolved) {
+    case 'high':
+      label = '高'
+      colorClass = 'bg-red-50 text-red-700'
+      break
+    case 'mid':
+      label = '中'
+      colorClass = 'bg-amber-50 text-amber-700'
+      break
+    default:
+      label = '低'
+      colorClass = 'bg-green-50 text-green-700'
+  }
+
   badge.textContent = label
   badge.className = `${colorClass} text-xs font-medium px-2 py-0.5 rounded-full`
   return badge
@@ -39,9 +49,7 @@ const createCard = (todo: Todo): HTMLElement => {
 
   const title = document.createElement('p')
   title.textContent = todo.text
-  title.className = todo.completed
-    ? 'text-sm line-through text-gray-400'
-    : 'text-sm text-gray-900'
+  title.className = todo.completed ? 'text-sm line-through text-gray-400' : 'text-sm text-gray-900'
   card.appendChild(title)
 
   const meta = document.createElement('div')
@@ -80,8 +88,7 @@ const createColumn = (column: BoardColumn): HTMLElement => {
 
   const countBadge = document.createElement('span')
   countBadge.textContent = String(column.todos.length)
-  countBadge.className =
-    'bg-green-200 text-green-900 rounded-full px-2 py-0.5 text-xs'
+  countBadge.className = 'bg-green-200 text-green-900 rounded-full px-2 py-0.5 text-xs'
 
   header.appendChild(label)
   header.appendChild(countBadge)

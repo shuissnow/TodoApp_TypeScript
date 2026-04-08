@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createFooter } from '../../components/Footer'
+import { createFooter } from '../../../components/organisms/Footer'
 
 describe('createFooter', () => {
   it('footer要素を返す', () => {

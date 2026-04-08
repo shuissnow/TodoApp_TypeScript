@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { fetchTodos, createTodo, updateTodo, deleteTodoById, deleteCompleted } from '../../services/api'
+import {
+  fetchTodos,
+  createTodo,
+  updateTodo,
+  deleteTodoById,
+  deleteCompleted,
+} from '../../services/api'
 
 describe('fetchTodos', () => {
   beforeEach(() => {
@@ -8,13 +14,26 @@ describe('fetchTodos', () => {
 
   it('正常系: APIが200を返した場合、Todo配列を返す', async () => {
     const mockTodos = [
-      { id: 'aaaaaaaa-0000-0000-0000-000000000001', text: 'テスト1', completed: false, createdAt: '2026-04-01T00:00:00Z' },
-      { id: 'aaaaaaaa-0000-0000-0000-000000000002', text: 'テスト2', completed: true, createdAt: '2026-04-01T01:00:00Z' },
+      {
+        id: 'aaaaaaaa-0000-0000-0000-000000000001',
+        text: 'テスト1',
+        completed: false,
+        createdAt: '2026-04-01T00:00:00Z',
+      },
+      {
+        id: 'aaaaaaaa-0000-0000-0000-000000000002',
+        text: 'テスト2',
+        completed: true,
+        createdAt: '2026-04-01T01:00:00Z',
+      },
     ]
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTodos),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockTodos),
+      }),
+    )
 
     const result = await fetchTodos()
 
@@ -22,10 +41,13 @@ describe('fetchTodos', () => {
   })
 
   it('正常系: APIが空配列を返した場合、空配列を返す', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve([]),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
+      }),
+    )
 
     const result = await fetchTodos()
 
@@ -45,19 +67,25 @@ describe('fetchTodos', () => {
   })
 
   it('異常系: APIが500を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 500,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      }),
+    )
 
     await expect(fetchTodos()).rejects.toThrow('fetchTodos failed: 500')
   })
 
   it('異常系: APIが404を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      }),
+    )
 
     await expect(fetchTodos()).rejects.toThrow('fetchTodos failed: 404')
   })
@@ -75,11 +103,19 @@ describe('createTodo', () => {
   })
 
   it('正常系: APIが201を返した場合、作成されたTodoを返す', async () => {
-    const mockTodo = { id: 'aaaaaaaa-0000-0000-0000-000000000001', text: '新タスク', completed: false, createdAt: '2026-04-01T00:00:00Z' }
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTodo),
-    }))
+    const mockTodo = {
+      id: 'aaaaaaaa-0000-0000-0000-000000000001',
+      text: '新タスク',
+      completed: false,
+      createdAt: '2026-04-01T00:00:00Z',
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockTodo),
+      }),
+    )
 
     const result = await createTodo('新タスク')
 
@@ -89,7 +125,13 @@ describe('createTodo', () => {
   it('正常系: POST /api/todos に text を JSON で送信する', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ id: 'aaaaaaaa-0000-0000-0000-000000000001', text: 'テスト', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+      json: () =>
+        Promise.resolve({
+          id: 'aaaaaaaa-0000-0000-0000-000000000001',
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
     })
     vi.stubGlobal('fetch', mockFetch)
 
@@ -106,19 +148,25 @@ describe('createTodo', () => {
   })
 
   it('異常系: APIが400を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 400,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+      }),
+    )
 
     await expect(createTodo('')).rejects.toThrow('createTodo failed: 400')
   })
 
   it('異常系: APIが500を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 500,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      }),
+    )
 
     await expect(createTodo('テスト')).rejects.toThrow('createTodo failed: 500')
   })
@@ -138,11 +186,19 @@ describe('updateTodo', () => {
   })
 
   it('正常系: completedのみ更新した場合、更新後のTodoを返す', async () => {
-    const mockTodo = { id: TODO_ID, text: 'テスト', completed: true, createdAt: '2026-04-01T00:00:00Z' }
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTodo),
-    }))
+    const mockTodo = {
+      id: TODO_ID,
+      text: 'テスト',
+      completed: true,
+      createdAt: '2026-04-01T00:00:00Z',
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockTodo),
+      }),
+    )
 
     const result = await updateTodo(TODO_ID, { completed: true })
 
@@ -152,7 +208,13 @@ describe('updateTodo', () => {
   it('正常系: PUT /api/todos/{id} に patch を JSON で送信する', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ id: TODO_ID, text: '更新後', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+      json: () =>
+        Promise.resolve({
+          id: TODO_ID,
+          text: '更新後',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
     })
     vi.stubGlobal('fetch', mockFetch)
 
@@ -169,19 +231,25 @@ describe('updateTodo', () => {
   })
 
   it('異常系: APIが404を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      }),
+    )
 
     await expect(updateTodo(TODO_ID, { completed: true })).rejects.toThrow('updateTodo failed: 404')
   })
 
   it('異常系: APIが400を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 400,
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+      }),
+    )
 
     await expect(updateTodo(TODO_ID, { text: '' })).rejects.toThrow('updateTodo failed: 400')
   })

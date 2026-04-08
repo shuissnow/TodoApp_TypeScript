@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createTodoInput } from '../../components/TodoInput'
+import { createTodoInput } from '../../../components/molecules/TodoInput'
 
 describe('createTodoInput', () => {
   describe('入力フィールド', () => {

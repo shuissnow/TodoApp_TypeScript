@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { createTodoList } from '../../components/TodoList'
-import type { Todo } from '../../types/todo'
+import { createTodoList } from '../../../components/organisms/TodoList'
+import type { Todo } from '../../../types/todo'
 
 const makeTodo = (id: string, completed = false): Todo => ({
   id,

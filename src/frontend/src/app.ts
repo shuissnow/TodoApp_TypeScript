@@ -1,10 +1,12 @@
 import type { FilterType, Todo, ViewType } from './types/todo'
 import { fetchTodos, createTodo, updateTodo, deleteTodoById, deleteCompleted } from './services/api'
-import { createTodoInput } from './components/TodoInput'
-import { createViewToggle } from './components/ViewToggle'
-import { createTaskListView } from './components/TaskListView'
-import { createTaskBoardView } from './components/TaskBoardView'
-import { createFooter } from './components/Footer'
+import { createTodoInput } from './components/molecules/TodoInput'
+import { createViewToggle } from './components/molecules/ViewToggle'
+import { createTaskListView } from './components/organisms/TaskListView'
+import { createTaskBoardView } from './components/organisms/TaskBoardView'
+import { createFooter } from './components/organisms/Footer'
+import { createHeader } from './components/organisms/Header'
+import { createAppLayout } from './components/templates/AppLayout'
 
 /** 全Todoの状態 */
 let todos: Todo[] = []
@@ -133,87 +135,6 @@ const getFilteredTodos = (): Todo[] => {
 }
 
 /**
- * ヘッダーのDOM要素を生成する
- *
- * 左：ロゴ＋アプリ名、右：ナビリンク＋アバター
- *
- * @returns `<header>` 要素
- */
-const createHeader = (): HTMLElement => {
-  // ヘッダーの作成
-  const header = document.createElement('header')
-  header.className = 'h-[52px] bg-green-800 px-5 flex items-center justify-between'
-
-  // 左側: ロゴ + アプリ名
-  const left = document.createElement('div')
-  left.className = 'flex items-center gap-2'
-
-  // ロゴを作成する。
-  const logoSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  logoSvg.setAttribute('width', '22')
-  logoSvg.setAttribute('height', '22')
-  logoSvg.setAttribute('viewBox', '0 0 22 22')
-  logoSvg.setAttribute('fill', 'none')
-
-  // ロゴの四角形を作成する。
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-  rect.setAttribute('x', '1')
-  rect.setAttribute('y', '1')
-  rect.setAttribute('width', '20')
-  rect.setAttribute('height', '20')
-  rect.setAttribute('rx', '5')
-  rect.setAttribute('fill', '#16a34a')
-
-  // ロゴのチェックマークを作成する。
-  const check = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-  check.setAttribute('d', 'M6 11l4 4 6-6')
-  check.setAttribute('stroke', 'white')
-  check.setAttribute('stroke-width', '2')
-  check.setAttribute('stroke-linecap', 'round')
-  check.setAttribute('stroke-linejoin', 'round')
-
-  logoSvg.appendChild(rect)
-  logoSvg.appendChild(check)
-
-  // タイトル名を作成する。
-  const appName = document.createElement('span')
-  appName.textContent = 'TodoApp'
-  appName.className = 'text-base font-medium text-green-50'
-
-  left.appendChild(logoSvg)
-  left.appendChild(appName)
-
-  // 右側: ナビリンク + アバター
-  const right = document.createElement('div')
-  right.className = 'flex items-center gap-4'
-
-  // TODO:未実装
-  const navLinks = ['ダッシュボード', 'レポート']
-  navLinks.forEach((label) => {
-    const a = document.createElement('a')
-    a.href = '#'
-    a.textContent = label
-    a.className = 'text-sm text-green-200 hover:text-green-50 transition-colors'
-    right.appendChild(a)
-  })
-
-  // アバター
-  const avatar = document.createElement('div')
-  avatar.className =
-    'w-7 h-7 rounded-full bg-green-600 border border-green-400 flex items-center justify-center'
-  const initials = document.createElement('span')
-  initials.textContent = 'U'
-  initials.className = 'text-xs text-green-50 font-medium'
-  avatar.appendChild(initials)
-  right.appendChild(avatar)
-
-  header.appendChild(left)
-  header.appendChild(right)
-
-  return header
-}
-
-/**
  * アプリ全体を再描画する
  *
  * `#app` 要素の中身をクリアし、各コンポーネントのDOM要素を組み立て直す。
@@ -229,49 +150,30 @@ export const render = (): void => {
   // #app要素の中身を削除する。
   app.replaceChildren()
 
-  // ルート
-  const root = document.createElement('div')
-  root.className = 'min-h-screen flex flex-col'
-
-  // Header
-  root.appendChild(createHeader())
-
-  // Main
-  const main = document.createElement('main')
-  main.className = 'flex-1 bg-gray-50'
-
-  const content = document.createElement('div')
-  content.className = 'p-5 max-w-3xl mx-auto'
-
   // セクション見出し
   const sectionTitle = document.createElement('h2')
   sectionTitle.textContent = 'タスク一覧'
   sectionTitle.className = 'text-lg font-medium text-green-800 mb-5'
-  content.appendChild(sectionTitle)
-
-  // タスク入力
-  content.appendChild(createTodoInput(isLoading))
 
   // 区切り線
   const divider = document.createElement('hr')
   divider.className = 'border-green-200 mb-2.5'
-  content.appendChild(divider)
-
-  // ビュー切り替えボタン
-  content.appendChild(createViewToggle(viewType))
 
   // タスクビュー
-  if (viewType === 'list') {
-    content.appendChild(createTaskListView(filtered, isLoading))
-  } else {
-    content.appendChild(createTaskBoardView(filtered))
-  }
+  const taskView: HTMLElement =
+    viewType === 'list' ? createTaskListView(filtered, isLoading) : createTaskBoardView(filtered)
 
-  main.appendChild(content)
-  root.appendChild(main)
-
-  // Footer
-  root.appendChild(createFooter())
+  const root = createAppLayout({
+    header: createHeader(),
+    contentChildren: [
+      sectionTitle,
+      createTodoInput(isLoading),
+      divider,
+      createViewToggle(viewType),
+      taskView,
+    ],
+    footer: createFooter(),
+  })
 
   app.appendChild(root)
 

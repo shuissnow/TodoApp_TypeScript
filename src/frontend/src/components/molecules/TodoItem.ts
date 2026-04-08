@@ -1,4 +1,5 @@
-import type { Todo } from '../types/todo'
+import { createCheckbox } from '../atoms/Checkbox'
+import type { Todo } from '../../types/todo'
 
 /**
  * Todoアイテム1件分のDOM要素を生成する
@@ -15,13 +16,12 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
   const li = document.createElement('li')
   li.className = 'flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0 group'
 
-  const checkbox = document.createElement('input')
-  checkbox.type = 'checkbox'
-  checkbox.checked = todo.completed
-  checkbox.dataset['id'] = todo.id
-  checkbox.disabled = isLoading
-  checkbox.className = 'w-4 h-4 text-blue-500 rounded cursor-pointer flex-shrink-0 disabled:cursor-not-allowed'
-  checkbox.setAttribute('aria-label', `「${todo.text}」を完了にする`)
+  const checkbox = createCheckbox({
+    dataId: todo.id,
+    checked: todo.completed,
+    disabled: isLoading,
+    ariaLabel: `「${todo.text}」を完了にする`,
+  })
 
   const text = document.createElement('span')
   text.textContent = todo.text

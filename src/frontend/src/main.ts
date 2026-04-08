@@ -7,4 +7,3 @@ import { render } from './app'
 document.addEventListener('DOMContentLoaded', () => {
   render()
 })
-

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { createTodoItem } from '../../components/TodoItem'
-import type { Todo } from '../../types/todo'
+import { createTodoItem } from '../../../components/molecules/TodoItem'
+import type { Todo } from '../../../types/todo'
 
 const baseTodo: Todo = {
   id: 'test-id-1',

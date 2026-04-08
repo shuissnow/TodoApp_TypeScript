@@ -1,4 +1,4 @@
-import type { Priority, Todo } from '../types/todo'
+import type { Priority, Todo } from '../../types/todo'
 
 /**
  * 優先度バッジのDOM要素を生成する
@@ -33,7 +33,10 @@ const createCheckButton = (todo: Todo, isLoading: boolean): HTMLElement => {
   button.type = 'button'
   button.dataset['id'] = todo.id
   button.disabled = isLoading
-  button.setAttribute('aria-label', `「${todo.text}」を${todo.completed ? '未完了に' : '完了に'}する`)
+  button.setAttribute(
+    'aria-label',
+    `「${todo.text}」を${todo.completed ? '未完了に' : '完了に'}する`,
+  )
 
   if (todo.completed) {
     button.className =
