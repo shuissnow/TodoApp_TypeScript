@@ -1,37 +1,36 @@
-import type { Todo } from '../types/todo'
-
 /**
  * フッターのDOM要素を生成する
  *
- * 未完了件数の表示と、完了済みタスクがある場合は「完了済みを削除」ボタンを表示する。
- * ボタンのクリックイベントは `app.ts` の `setupEventListeners` で登録する。
- * タスクが1件もない場合、`app.ts` の `render()` からこの関数は呼ばれない。
+ * 左側にコピーライト、右側にリンク群を表示する。
  *
- * @param todos - 全Todo配列（フィルター前）
- * @param isLoading - API呼び出し中フラグ。trueのとき「完了済みを削除」ボタンをdisabledにする
  * @returns フッターの `<footer>` 要素
  */
-export const createFooter = (todos: Todo[], isLoading: boolean): HTMLElement => {
+export const createFooter = (): HTMLElement => {
   const footer = document.createElement('footer')
-  footer.className = 'flex items-center justify-between px-4 py-3 text-sm text-gray-500 border-t border-gray-100'
+  footer.className = 'h-9 bg-green-900 px-5 flex items-center justify-between'
 
-  const activeCount = todos.filter((t) => !t.completed).length
-  const completedCount = todos.filter((t) => t.completed).length
+  const copyright = document.createElement('span')
+  copyright.textContent = '© 2025 TodoApp'
+  copyright.className = 'text-xs text-green-400'
 
-  const count = document.createElement('span')
-  count.textContent = `${activeCount}件残っています`
+  const links = document.createElement('div')
+  links.className = 'flex gap-3.5'
 
-  footer.appendChild(count)
+  const linkDefs = [
+    { label: 'プライバシー', href: '#' },
+    { label: '利用規約', href: '#' },
+    { label: 'お問い合わせ', href: '#' },
+  ]
+  linkDefs.forEach(({ label, href }) => {
+    const a = document.createElement('a')
+    a.href = href
+    a.textContent = label
+    a.className = 'text-xs text-green-600 hover:text-green-400 transition-colors'
+    links.appendChild(a)
+  })
 
-  if (completedCount > 0) {
-    const clearButton = document.createElement('button')
-    clearButton.type = 'button'
-    clearButton.id = 'clear-completed-button'
-    clearButton.textContent = '完了済みを削除'
-    clearButton.disabled = isLoading
-    clearButton.className = 'text-sm text-gray-400 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-400 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-    footer.appendChild(clearButton)
-  }
+  footer.appendChild(copyright)
+  footer.appendChild(links)
 
   return footer
 }

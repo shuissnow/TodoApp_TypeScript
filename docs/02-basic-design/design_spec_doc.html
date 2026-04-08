@@ -1,0 +1,119 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.doc { max-width: 720px; margin: 0 auto; padding: 1.5rem 0; color: var(--color-text-primary); }
+.doc h2 { font-size: 15px; font-weight: 500; color: #3B6D11; border-left: 3px solid #639922; padding-left: 10px; margin: 1.75rem 0 0.75rem; border-radius: 0; }
+.doc h2:first-child { margin-top: 0; }
+.section { background: var(--color-background-secondary); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; }
+.row { display: flex; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.row:last-child { border-bottom: none; }
+.label { color: var(--color-text-secondary); min-width: 140px; flex-shrink: 0; }
+.val { color: var(--color-text-primary); flex: 1; }
+code { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 1px 5px; color: #3B6D11; }
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+.b-high { background: #FCEBEB; color: #A32D2D; }
+.b-mid  { background: #FAEEDA; color: #854F0B; }
+.b-low  { background: #EAF3DE; color: #3B6D11; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 0.5px solid rgba(0,0,0,0.1); }
+.note { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; }
+</style>
+
+<div class="doc">
+
+  <h2>カラーパレット</h2>
+  <div class="section">
+    <div class="row"><span class="label">ヘッダー背景</span><span class="val"><span class="swatch" style="background:#3B6D11;"></span> <code>bg-green-800</code> #3B6D11</span></div>
+    <div class="row"><span class="label">フッター背景</span><span class="val"><span class="swatch" style="background:#27500A;"></span> <code>bg-green-900</code> #27500A</span></div>
+    <div class="row"><span class="label">追加ボタン</span><span class="val"><span class="swatch" style="background:#3B6D11;"></span> <code>bg-green-800</code> ホバー: <code>bg-green-900</code></span></div>
+    <div class="row"><span class="label">アクセントボーダー</span><span class="val"><span class="swatch" style="background:#97C459;"></span> <code>border-green-400</code> #97C459</span></div>
+    <div class="row"><span class="label">カンバン列背景</span><span class="val"><span class="swatch" style="background:#EAF3DE;"></span> <code>bg-green-50</code> #EAF3DE</span></div>
+    <div class="row"><span class="label">カンバムカード</span><span class="val"><span class="swatch" style="background:#C0DD97;"></span> ボーダー <code>border-green-200</code> #C0DD97</span></div>
+    <div class="row"><span class="label">入力フォーカス</span><span class="val"><code>ring-2 ring-green-400</code> (focus時)</span></div>
+    <div class="row"><span class="label">テーブル区切り線</span><span class="val"><code>border-green-200</code> (thead下) / <code>border-gray-100</code> (tbody行間)</span></div>
+  </div>
+
+  <h2>タイポグラフィ</h2>
+  <div class="section">
+    <div class="row"><span class="label">アプリ名 (Header)</span><span class="val"><code>text-base font-medium text-green-50</code> 16px / 500</span></div>
+    <div class="row"><span class="label">セクション見出し</span><span class="val"><code>text-lg font-medium text-green-800</code> 18px / 500</span></div>
+    <div class="row"><span class="label">テーブルヘッダー</span><span class="val"><code>text-xs font-medium text-gray-500</code> 12px / 500</span></div>
+    <div class="row"><span class="label">テーブル本文</span><span class="val"><code>text-sm text-gray-900</code> 13px / 400</span></div>
+    <div class="row"><span class="label">完了タスク</span><span class="val"><code>line-through text-gray-400</code></span></div>
+    <div class="row"><span class="label">ヘッダーナビ</span><span class="val"><code>text-sm text-green-200</code> 13px</span></div>
+    <div class="row"><span class="label">フッターテキスト</span><span class="val"><code>text-xs text-green-400</code> 11px</span></div>
+  </div>
+
+  <h2>スペーシング・レイアウト</h2>
+  <div class="section">
+    <div class="row"><span class="label">ヘッダー高さ</span><span class="val"><code>h-13</code> 52px、左右パディング <code>px-5</code></span></div>
+    <div class="row"><span class="label">フッター高さ</span><span class="val"><code>h-9</code> 36px、左右パディング <code>px-5</code></span></div>
+    <div class="row"><span class="label">メインコンテンツ</span><span class="val">パディング <code>p-5</code>、最大幅 <code>max-w-3xl mx-auto</code></span></div>
+    <div class="row"><span class="label">入力欄の下余白</span><span class="val"><code>mb-5</code> 20px</span></div>
+    <div class="row"><span class="label">区切り線の上下</span><span class="val">上 <code>mb-2.5</code>、下（ツールバー）<code>mb-3</code></span></div>
+    <div class="row"><span class="label">テーブルセル</span><span class="val">上下 <code>py-2.5</code>、左右 <code>px-3</code></span></div>
+    <div class="row"><span class="label">カンバム列gap</span><span class="val"><code>gap-3</code>、列内カードgap <code>space-y-2</code></span></div>
+    <div class="row"><span class="label">カードパディング</span><span class="val"><code>p-3</code> 12px</span></div>
+  </div>
+
+  <h2>コンポーネント別仕様</h2>
+
+  <h2 style="margin-top:1rem;">— Header</h2>
+  <div class="section">
+    <div class="row"><span class="label">構造</span><span class="val">左：ロゴアイコン(22px) + アプリ名 / 右：ナビリンク + アバター</span></div>
+    <div class="row"><span class="label">ロゴアイコン</span><span class="val">SVG 22×22px、角丸rect + チェックパス、<code>fill-green-600</code></span></div>
+    <div class="row"><span class="label">アバター</span><span class="val">28×28px、<code>rounded-full bg-green-600 border border-green-400</code>、イニシャル文字 <code>text-xs text-green-50</code></span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— TaskInput</h2>
+  <div class="section">
+    <div class="row"><span class="label">入力欄</span><span class="val"><code>flex-1 h-9.5 border border-green-400 rounded-lg px-3 text-sm</code></span></div>
+    <div class="row"><span class="label">フォーカス時</span><span class="val"><code>focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600</code></span></div>
+    <div class="row"><span class="label">追加ボタン</span><span class="val"><code>h-9.5 px-4 bg-green-800 text-green-50 text-sm font-medium rounded-lg</code></span></div>
+    <div class="row"><span class="label">ボタンホバー</span><span class="val"><code>hover:bg-green-900 transition-colors</code></span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— ViewToggle（アイコン1つ）</h2>
+  <div class="section">
+    <div class="row"><span class="label">配置</span><span class="val">区切り線直下、<code>flex justify-end mb-3</code></span></div>
+    <div class="row"><span class="label">ボタンサイズ</span><span class="val"><code>w-8 h-8</code> 32px正方形</span></div>
+    <div class="row"><span class="label">スタイル</span><span class="val"><code>border border-green-400 rounded-lg bg-green-50 text-green-800</code></span></div>
+    <div class="row"><span class="label">ホバー</span><span class="val"><code>hover:bg-green-200 transition-colors</code></span></div>
+    <div class="row"><span class="label">アイコン切り替え</span><span class="val">List表示中→ボードアイコン表示、Board表示中→リストアイコン表示（SVG 16×16px）</span></div>
+    <div class="row"><span class="label">tooltip</span><span class="val"><code>title</code>属性で「ボード表示に切り替え」/「リスト表示に切り替え」</span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— TaskListView（table）</h2>
+  <div class="section">
+    <div class="row"><span class="label">列構成</span><span class="val">チェック(32px) / タスク名(flex) / 締め切り(100px) / 優先度(72px) / ステータス(72px)</span></div>
+    <div class="row"><span class="label">thead</span><span class="val"><code>border-b border-green-200</code>、セル <code>text-xs font-medium text-gray-500 py-1.5 px-3</code></span></div>
+    <div class="row"><span class="label">tbody行</span><span class="val"><code>border-b border-gray-100 last:border-0</code></span></div>
+    <div class="row"><span class="label">チェックボタン</span><span class="val">16×16px、<code>rounded-full border-2 border-green-400</code>、チェック済み: <code>bg-green-600 border-green-600</code>、チェックマーク白</span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— 優先度バッジ</h2>
+  <div class="section">
+    <div class="row"><span class="label">高</span><span class="val"><div class="badge-row"><span class="badge b-high">高</span></div> <code>bg-red-50 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full</code></span></div>
+    <div class="row"><span class="label">中</span><span class="val"><div class="badge-row"><span class="badge b-mid">中</span></div> <code>bg-amber-50 text-amber-700 text-xs font-medium px-2 py-0.5 rounded-full</code></span></div>
+    <div class="row"><span class="label">低</span><span class="val"><div class="badge-row"><span class="badge b-low">低</span></div> <code>bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full</code></span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— TaskBoardView（カンバン）</h2>
+  <div class="section">
+    <div class="row"><span class="label">グリッド</span><span class="val"><code>grid grid-cols-3 gap-3</code>（モバイル: <code>grid-cols-1</code>）</span></div>
+    <div class="row"><span class="label">列背景</span><span class="val"><code>bg-green-50 rounded-xl p-3</code></span></div>
+    <div class="row"><span class="label">列ヘッダー</span><span class="val"><code>text-xs font-medium text-green-800</code> + カウントバッジ <code>bg-green-200 text-green-900 rounded-full px-2 py-0.5 text-xs</code></span></div>
+    <div class="row"><span class="label">カード</span><span class="val"><code>bg-white border border-green-200 rounded-lg p-3 space-y-1.5</code></span></div>
+    <div class="row"><span class="label">カードタイトル</span><span class="val"><code>text-sm text-gray-900</code>、完了時 <code>line-through text-gray-400</code></span></div>
+    <div class="row"><span class="label">カードmeta</span><span class="val">優先度バッジ + 締め切り日 <code>text-xs text-gray-400</code>（flex items-center gap-1.5）</span></div>
+  </div>
+
+  <h2 style="margin-top:1rem;">— Footer</h2>
+  <div class="section">
+    <div class="row"><span class="label">構造</span><span class="val">左：コピーライト / 右：リンク群 <code>flex justify-between items-center</code></span></div>
+    <div class="row"><span class="label">コピーライト</span><span class="val"><code>text-xs text-green-400</code></span></div>
+    <div class="row"><span class="label">リンク</span><span class="val"><code>text-xs text-green-600 hover:text-green-400 transition-colors</code>、<code>gap-3.5</code>で横並び</span></div>
+  </div>
+
+</div>

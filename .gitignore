@@ -44,3 +44,5 @@ appsettings.Production.json
 .serena/
 .claude/
 src/backend/Instructions/
+src/frontend/instructions/
+src/backend/あとでやること.md

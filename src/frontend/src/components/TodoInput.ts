@@ -10,7 +10,7 @@
  */
 export const createTodoInput = (isLoading: boolean): HTMLElement => {
   const container = document.createElement('div')
-  container.className = 'flex gap-2 p-4'
+  container.className = 'flex gap-2 mb-5'
 
   const input = document.createElement('input')
   input.type = 'text'
@@ -19,7 +19,7 @@ export const createTodoInput = (isLoading: boolean): HTMLElement => {
   input.maxLength = 200
   input.disabled = isLoading
   input.className =
-    'flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
+    'flex-1 h-[38px] border border-green-400 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed'
 
   const button = document.createElement('button')
   button.type = 'button'
@@ -27,7 +27,7 @@ export const createTodoInput = (isLoading: boolean): HTMLElement => {
   button.textContent = isLoading ? '追加中...' : '追加'
   button.disabled = isLoading
   button.className =
-    'px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+    'h-[38px] px-4 bg-green-800 text-green-50 text-sm font-medium rounded-lg hover:bg-green-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 
   container.appendChild(input)
   container.appendChild(button)
