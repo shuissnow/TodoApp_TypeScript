@@ -1,9 +1,42 @@
 <Project>
   <PropertyGroup>
+    <!-- 共通設定（全プロジェクト共通） -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
     <!-- Roslyn アナライザー: Recommended ルールセットを有効化 -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
+
+    <!-- EditorConfig の IDE0xxx ルールをビルド時にも強制 -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- IDE0005（未使用 using）をビルドで検出するために必要 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- CS1591: XML doc コメント欠落の警告は抑制（GenerateDocumentationFile の副作用） -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
     <!-- アナライザー警告をエラーとして扱い CI を失敗させる -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <!-- 追加アナライザー（全プロジェクト共通） -->
+  <ItemGroup>
+    <!-- セキュリティ・品質ルール（SQL インジェクション、XSS など） -->
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <!-- 500+ コード品質ルール（不要コード検出・リファクタリング提案） -->
+    <PackageReference Include="Roslynator.Analyzers" Version="4.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <!-- async/await パターンのベストプラクティス検証 -->
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
