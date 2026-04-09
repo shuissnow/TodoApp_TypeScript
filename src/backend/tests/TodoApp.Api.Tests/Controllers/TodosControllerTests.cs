@@ -24,11 +24,11 @@ public class TodosControllerTests
     {
         // Arrange
         CreateTodoRequest request = new CreateTodoRequest { Text = "新しいタスク" };
-        Todo createdTodo = new Todo { Id = Guid.NewGuid(), Text = "新しいタスク", Completed = false, CreatedAt = DateTime.UtcNow };
+        Todo createdTodo = new Todo { Id = 1, Text = "新しいタスク", Completed = false, CreatedAt = DateTime.UtcNow };
         _serviceMock.Setup(s => s.CreateAsync(request)).ReturnsAsync(createdTodo);
 
         // Act
-        IActionResult result = await _sut.Create(request);
+        IActionResult result = await _sut.CreateAsync(request);
 
         // Assert
         CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(result);
@@ -44,13 +44,13 @@ public class TodosControllerTests
     public async Task Update_Returns200WithUpdatedTodo_WhenTodoExists()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        int id = 1;
         UpdateTodoRequest request = new UpdateTodoRequest { Text = "更新後のタスク", Completed = true };
         Todo updatedTodo = new Todo { Id = id, Text = "更新後のタスク", Completed = true, CreatedAt = DateTime.UtcNow };
         _serviceMock.Setup(s => s.UpdateAsync(id, request)).ReturnsAsync(updatedTodo);
 
         // Act
-        IActionResult result = await _sut.Update(id, request);
+        IActionResult result = await _sut.UpdateAsync(id, request);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
@@ -65,12 +65,12 @@ public class TodosControllerTests
     public async Task Update_Returns404_WhenTodoNotFound()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        int id = 99;
         UpdateTodoRequest request = new UpdateTodoRequest { Text = "更新後のタスク" };
         _serviceMock.Setup(s => s.UpdateAsync(id, request)).ReturnsAsync((Todo?)null);
 
         // Act
-        IActionResult result = await _sut.Update(id, request);
+        IActionResult result = await _sut.UpdateAsync(id, request);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -82,11 +82,11 @@ public class TodosControllerTests
     public async Task Delete_Returns204_WhenTodoDeleted()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        int id = 1;
         _serviceMock.Setup(s => s.DeleteAsync(id)).ReturnsAsync(true);
 
         // Act
-        IActionResult result = await _sut.Delete(id);
+        IActionResult result = await _sut.DeleteAsync(id);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -96,11 +96,11 @@ public class TodosControllerTests
     public async Task Delete_Returns404_WhenTodoNotFound()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        int id = 99;
         _serviceMock.Setup(s => s.DeleteAsync(id)).ReturnsAsync(false);
 
         // Act
-        IActionResult result = await _sut.Delete(id);
+        IActionResult result = await _sut.DeleteAsync(id);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -115,7 +115,7 @@ public class TodosControllerTests
         _serviceMock.Setup(s => s.DeleteCompletedAsync()).Returns(Task.CompletedTask);
 
         // Act
-        IActionResult result = await _sut.DeleteCompleted();
+        IActionResult result = await _sut.DeleteCompletedAsync();
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -125,13 +125,28 @@ public class TodosControllerTests
     // --- GetAll ---
 
     [Fact]
+    public async Task GetAll_PassesQueryParamsToService()
+    {
+        // Arrange
+        TodoQueryParams queryParams = new TodoQueryParams { Filter = "overdue", Sort = "due_date" };
+        _serviceMock.Setup(s => s.GetAllAsync(queryParams)).ReturnsAsync(new List<Todo>());
+
+        // Act
+        await _sut.GetAllAsync(queryParams);
+
+        // Assert
+        _serviceMock.Verify(s => s.GetAllAsync(queryParams), Times.Once);
+    }
+
+    [Fact]
     public async Task GetAll_Returns200WithEmptyList_WhenNoTodos()
     {
         // Arrange
-        _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Todo>());
+        TodoQueryParams queryParams = new TodoQueryParams();
+        _serviceMock.Setup(s => s.GetAllAsync(queryParams)).ReturnsAsync(new List<Todo>());
 
         // Act
-        IActionResult result = await _sut.GetAll();
+        IActionResult result = await _sut.GetAllAsync(queryParams);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
@@ -146,13 +161,14 @@ public class TodosControllerTests
         // Arrange
         List<Todo> todos = new List<Todo>
         {
-            new() { Id = Guid.NewGuid(), Text = "タスク1", Completed = false, CreatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Text = "タスク2", Completed = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = 1, Text = "タスク1", Completed = false, CreatedAt = DateTime.UtcNow },
+            new() { Id = 2, Text = "タスク2", Completed = true, CreatedAt = DateTime.UtcNow },
         };
-        _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(todos);
+        TodoQueryParams queryParams = new TodoQueryParams();
+        _serviceMock.Setup(s => s.GetAllAsync(queryParams)).ReturnsAsync(todos);
 
         // Act
-        IActionResult result = await _sut.GetAll();
+        IActionResult result = await _sut.GetAllAsync(queryParams);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);

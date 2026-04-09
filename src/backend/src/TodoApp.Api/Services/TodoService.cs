@@ -10,10 +10,11 @@ namespace TodoApp.Api.Services;
 public class TodoService(ITodoRepository repository) : ITodoService
 {
     /// <summary>
-    /// 全タスクを取得します。
+    /// クエリパラメーターに基づいてタスク一覧を取得します。
     /// </summary>
+    /// <param name="queryParams">フィルター・ソート条件</param>
     /// <returns>Todoリスト</returns>
-    public Task<IEnumerable<Todo>> GetAllAsync() => repository.GetAllAsync();
+    public Task<IEnumerable<Todo>> GetAllAsync(TodoQueryParams queryParams) => repository.GetAllAsync(queryParams);
 
     /// <summary>
     /// タスクを作成します。
@@ -24,10 +25,10 @@ public class TodoService(ITodoRepository repository) : ITodoService
     {
         Todo todo = new()
         {
-            Id = Guid.NewGuid(),
             Text = request.Text.Trim(),
             Completed = false,
             CreatedAt = DateTime.UtcNow,
+            DueDate = request.DueDate,
         };
         return await repository.CreateAsync(todo);
     }
@@ -38,13 +39,15 @@ public class TodoService(ITodoRepository repository) : ITodoService
     /// <param name="id">TodoのID</param>
     /// <param name="request">更新内容</param>
     /// <returns>更新後のTodo。存在しない場合は null。</returns>
-    public async Task<Todo?> UpdateAsync(Guid id, UpdateTodoRequest request)
+    public async Task<Todo?> UpdateAsync(int id, UpdateTodoRequest request)
     {
         Todo? todo = await repository.GetByIdAsync(id);
         if (todo is null) return null;
 
         if (request.Text is not null) todo.Text = request.Text.Trim();
         if (request.Completed is not null) todo.Completed = request.Completed.Value;
+        if (request.ResetDueDate == true) todo.DueDate = null;
+        else if (request.DueDate is not null) todo.DueDate = request.DueDate;
 
         return await repository.UpdateAsync(todo);
     }
@@ -54,7 +57,7 @@ public class TodoService(ITodoRepository repository) : ITodoService
     /// </summary>
     /// <param name="id">TodoのID</param>
     /// <returns>削除できた場合は true。存在しない場合は false。</returns>
-    public Task<bool> DeleteAsync(Guid id) => repository.DeleteAsync(id);
+    public Task<bool> DeleteAsync(int id) => repository.DeleteAsync(id);
 
     /// <summary>
     /// 完了済みタスクをすべて削除します。

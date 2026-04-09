@@ -14,4 +14,9 @@ public class CreateTodoRequest
     [MinLength(1)]
     [MaxLength(200)]
     public string Text { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 期限日（省略可）
+    /// </summary>
+    public DateOnly? DueDate { get; set; }
 }

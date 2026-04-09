@@ -8,7 +8,7 @@ public class Todo
     /// <summary>
     /// 一意識別子
     /// </summary>
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// タスクの内容（最大200文字）
@@ -24,4 +24,9 @@ public class Todo
     /// 作成日時（UTC）
     /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// 期限日（省略可）
+    /// </summary>
+    public DateOnly? DueDate { get; set; }
 }

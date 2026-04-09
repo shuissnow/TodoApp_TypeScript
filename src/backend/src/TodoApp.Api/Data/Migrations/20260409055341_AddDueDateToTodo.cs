@@ -1,0 +1,28 @@
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace TodoApp.Api.Data.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddDueDateToTodo : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<DateOnly>(
+                name: "due_date",
+                table: "todos",
+                type: "date",
+                nullable: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "due_date",
+                table: "todos");
+        }
+    }
+}

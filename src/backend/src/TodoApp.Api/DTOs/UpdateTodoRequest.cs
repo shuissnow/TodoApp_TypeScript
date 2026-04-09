@@ -18,4 +18,14 @@ public class UpdateTodoRequest
     /// 完了状態（省略可）
     /// </summary>
     public bool? Completed { get; set; }
+
+    /// <summary>
+    /// 期限日（省略可）
+    /// </summary>
+    public DateOnly? DueDate { get; set; }
+
+    /// <summary>
+    /// true のとき期限日を null にリセットする
+    /// </summary>
+    public bool? ResetDueDate { get; set; }
 }

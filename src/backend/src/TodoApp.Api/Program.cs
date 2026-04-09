@@ -89,7 +89,9 @@ if (app.Environment.IsDevelopment())
         using (IServiceScope scope = app.Services.CreateScope())
         {
             AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+#pragma warning disable S6966 // Awaitable method should be used
             db.Database.Migrate();
+#pragma warning restore S6966 // Awaitable method should be used
         }
     }
     catch (Exception ex)
@@ -103,4 +105,6 @@ app.MapControllers();
 // ヘルスチェックエンドポイント（GET /health）を登録する
 app.MapHealthChecks("/health");
 // アプリを起動し、リクエストの待ち受けを開始する
+#pragma warning disable S6966 // Awaitable method should be used
 app.Run();
+#pragma warning restore S6966 // Awaitable method should be used

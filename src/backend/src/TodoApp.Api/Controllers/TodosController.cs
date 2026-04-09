@@ -16,13 +16,14 @@ public class TodosController(ITodoService service) : ControllerBase
     /// <summary>
     /// タスク一覧を取得します。
     /// </summary>
-    /// <returns>全Todoリスト</returns>
+    /// <param name="queryParams">フィルター・ソート条件</param>
+    /// <returns>Todoリスト</returns>
     /// <response code="200">正常取得</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<Todo>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAllAsync([FromQuery] TodoQueryParams queryParams)
     {
-        var todos = await service.GetAllAsync();
+        IEnumerable<Todo> todos = await service.GetAllAsync(queryParams);
         return Ok(todos);
     }
 
@@ -36,10 +37,10 @@ public class TodosController(ITodoService service) : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Todo), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateTodoRequest request)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateTodoRequest request)
     {
-        var todo = await service.CreateAsync(request);
-        return CreatedAtAction(nameof(GetAll), new { id = todo.Id }, todo);
+        Todo todo = await service.CreateAsync(request);
+        return CreatedAtAction(nameof(GetAllAsync), new { id = todo.Id }, todo);
     }
 
     /// <summary>
@@ -51,13 +52,13 @@ public class TodosController(ITodoService service) : ControllerBase
     /// <response code="200">更新成功</response>
     /// <response code="400">バリデーションエラー</response>
     /// <response code="404">対象Todoが存在しない</response>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(Todo), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTodoRequest request)
+    public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateTodoRequest request)
     {
-        var todo = await service.UpdateAsync(id, request);
+        Todo? todo = await service.UpdateAsync(id, request);
         if (todo is null) return NotFound();
         return Ok(todo);
     }
@@ -68,7 +69,7 @@ public class TodosController(ITodoService service) : ControllerBase
     /// <response code="204">削除成功</response>
     [HttpDelete("completed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteCompleted()
+    public async Task<IActionResult> DeleteCompletedAsync()
     {
         await service.DeleteCompletedAsync();
         return NoContent();
@@ -80,12 +81,12 @@ public class TodosController(ITodoService service) : ControllerBase
     /// <param name="id">TodoのID</param>
     /// <response code="204">削除成功</response>
     /// <response code="404">対象Todoが存在しない</response>
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(int id)
     {
-        var deleted = await service.DeleteAsync(id);
+        bool deleted = await service.DeleteAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }

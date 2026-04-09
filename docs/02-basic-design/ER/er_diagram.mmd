@@ -1,0 +1,30 @@
+erDiagram
+  priorities {
+    int id PK
+    string name
+    int order
+    datetime created_at
+    datetime updated_at
+  }
+
+  categories {
+    int id PK
+    string name
+    string color
+    datetime created_at
+    datetime updated_at
+  }
+
+  todos {
+    int id PK
+    string text
+    boolean is_completed
+    int priority_id FK "NULL on delete"
+    int category_id FK "NULL on delete"
+    datetime due_date
+    datetime created_at
+    datetime updated_at
+  }
+
+  todos }o--o| priorities : "priority_id (SET NULL)"
+  todos }o--o| categories : "category_id (SET NULL)"

@@ -16,10 +16,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.ToTable("todos");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
             entity.Property(e => e.Text).HasColumnName("text").HasMaxLength(200).IsRequired();
             entity.Property(e => e.Completed).HasColumnName("completed").HasDefaultValue(false);
             entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.DueDate).HasColumnName("due_date").HasColumnType("date").IsRequired(false);
         });
     }
 }
