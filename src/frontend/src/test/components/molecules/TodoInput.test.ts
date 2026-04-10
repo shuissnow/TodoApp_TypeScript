@@ -34,6 +34,32 @@ describe('createTodoInput', () => {
     })
   })
 
+  describe('期限日入力フィールド', () => {
+    it('id="todo-deadline-input"のinput要素が存在する', () => {
+      const container = createTodoInput(false)
+      const input = container.querySelector('#todo-deadline-input')
+      expect(input).not.toBeNull()
+    })
+
+    it('input要素のtypeがdateである', () => {
+      const container = createTodoInput(false)
+      const input = container.querySelector<HTMLInputElement>('#todo-deadline-input')
+      expect(input?.type).toBe('date')
+    })
+
+    it('isLoading=falseのとき、inputがdisabledでない', () => {
+      const container = createTodoInput(false)
+      const input = container.querySelector<HTMLInputElement>('#todo-deadline-input')
+      expect(input?.disabled).toBe(false)
+    })
+
+    it('isLoading=trueのとき、inputがdisabledになる', () => {
+      const container = createTodoInput(true)
+      const input = container.querySelector<HTMLInputElement>('#todo-deadline-input')
+      expect(input?.disabled).toBe(true)
+    })
+  })
+
   describe('追加ボタン', () => {
     it('id="todo-add-button"のbutton要素が存在する', () => {
       const container = createTodoInput(false)

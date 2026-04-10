@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { createTaskBoardView } from '../../../components/organisms/TaskBoardView'
 import type { Todo } from '../../../types/todo'
 
-const makeTodo = (id: string, overrides: Partial<Todo> = {}): Todo => ({
+const makeTodo = (id: number, overrides: Partial<Todo> = {}): Todo => ({
   id,
   text: `タスク${id}`,
   completed: false,
@@ -37,17 +37,17 @@ describe('createTaskBoardView', () => {
 
   describe('Todoの振り分け', () => {
     it('未完了のtodoのテキストが表示される', () => {
-      const board = createTaskBoardView([makeTodo('1', { text: '未完了タスク', completed: false })])
+      const board = createTaskBoardView([makeTodo(1, { text: '未完了タスク', completed: false })])
       expect(board.textContent).toContain('未完了タスク')
     })
 
     it('完了済みのtodoのテキストが表示される', () => {
-      const board = createTaskBoardView([makeTodo('1', { text: '完了タスク', completed: true })])
+      const board = createTaskBoardView([makeTodo(1, { text: '完了タスク', completed: true })])
       expect(board.textContent).toContain('完了タスク')
     })
 
     it('「進行中」カラムは常に空（「タスクなし」が表示される）', () => {
-      const board = createTaskBoardView([makeTodo('1')])
+      const board = createTaskBoardView([makeTodo(1)])
       // 「進行中」列のカード数を確認するため、各列を確認
       const columns = board.querySelectorAll('.bg-green-50.rounded-xl')
       const inProgressColumn = columns[1]
@@ -67,12 +67,12 @@ describe('createTaskBoardView', () => {
 
   describe('deadline表示', () => {
     it('deadline設定時、その値が表示される', () => {
-      const board = createTaskBoardView([makeTodo('1', { deadline: '2026-04-30' })])
+      const board = createTaskBoardView([makeTodo(1, { dueDate: '2026-04-30' })])
       expect(board.textContent).toContain('2026-04-30')
     })
 
     it('deadline未設定時、日付が表示されない', () => {
-      const board = createTaskBoardView([makeTodo('1')])
+      const board = createTaskBoardView([makeTodo(1)])
       // deadline spanはpriority badgeの隣に出るため、日付フォーマットで確認
       const deadlineSpans = Array.from(board.querySelectorAll('span')).filter((s) =>
         /\d{4}-\d{2}-\d{2}/.test(s.textContent ?? ''),
@@ -83,17 +83,17 @@ describe('createTaskBoardView', () => {
 
   describe('優先度バッジ', () => {
     it("priority='high'のとき「高」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo('1', { priority: 'high' })])
+      const board = createTaskBoardView([makeTodo(1, { priority: 'high' })])
       expect(board.textContent).toContain('高')
     })
 
     it("priority='mid'のとき「中」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo('1', { priority: 'mid' })])
+      const board = createTaskBoardView([makeTodo(1, { priority: 'mid' })])
       expect(board.textContent).toContain('中')
     })
 
     it("priority='low'のとき「低」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo('1', { priority: 'low' })])
+      const board = createTaskBoardView([makeTodo(1, { priority: 'low' })])
       expect(board.textContent).toContain('低')
     })
   })

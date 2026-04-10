@@ -8,13 +8,20 @@ using TodoApp.Api.Repositories;
 using TodoApp.Api.Services;
 
 // WebApplicationBuilderを生成し、設定・DI・ミドルウェアを構成する
+// argsにDockerfileの環境変数がセットされる。設定の優先順位は以下となる。
+// 優先度1:builder.WebHost.UseUrls()
+// 優先度2:ASPNETCORE_URLS 環境変数(Dockerfile内の変数)
+// 優先度3:appsettings.json の Urls
+// 優先度4:デフォルト（http://localhost:5000）
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Serilog を設定する（通常ログと SQL ログを別ファイルに出力）
 builder.Host.UseSerilog((context, configuration) =>
 {
-    // src/log/ ディレクトリにログを出力する（ContentRootPath から3階層上が src/）
-    string logDir = Path.GetFullPath(Path.Combine(context.HostingEnvironment.ContentRootPath, "..", "..", "..", "log"));
+    // LOG_DIR 環境変数が設定されている場合はそのパスを使用する（Docker 環境向け）。
+    // 未設定の場合は ContentRootPath から3階層上の src/log/ に出力する（ローカル開発向け）。
+    string logDir = Environment.GetEnvironmentVariable("LOG_DIR")
+        ?? Path.GetFullPath(Path.Combine(context.HostingEnvironment.ContentRootPath, "..", "..", "..", "log"));
     configuration
         .ReadFrom.Configuration(context.Configuration)
         .WriteTo.Logger(lc => lc

@@ -23,18 +23,18 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
 
         query = queryParams.Filter switch
         {
-            "today"        => query.Where(t => t.DueDate == today),
-            "overdue"      => query.Where(t => t.DueDate != null && t.DueDate < today),
-            "this_week"    => query.Where(t => t.DueDate >= today && t.DueDate <= today.AddDays(6)),
+            "today" => query.Where(t => t.DueDate == today),
+            "overdue" => query.Where(t => t.DueDate != null && t.DueDate < today),
+            "this_week" => query.Where(t => t.DueDate >= today && t.DueDate <= today.AddDays(6)),
             "has_due_date" => query.Where(t => t.DueDate != null),
-            "no_due_date"  => query.Where(t => t.DueDate == null),
-            _              => query,
+            "no_due_date" => query.Where(t => t.DueDate == null),
+            _ => query,
         };
 
         query = queryParams.Sort switch
         {
             "due_date" => query.OrderBy(t => t.DueDate == null).ThenBy(t => t.DueDate).ThenBy(t => t.CreatedAt),
-            _          => query.OrderBy(t => t.CreatedAt),
+            _ => query.OrderBy(t => t.CreatedAt),
         };
 
         return await query.ToListAsync();

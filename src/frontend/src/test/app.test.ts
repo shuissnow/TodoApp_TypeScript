@@ -11,9 +11,17 @@ vi.mock('../services/api', () => ({
 }))
 
 import * as api from '../services/api'
-import { addTodo, toggleTodo, deleteTodo, clearCompleted, setFilter, render } from '../app'
+import {
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  clearCompleted,
+  setFilter,
+  render,
+  updateDueDate,
+} from '../app'
 
-const makeTodo = (id: string, completed = false): Todo => ({
+const makeTodo = (id: number, completed = false): Todo => ({
   id,
   text: `タスク${id}`,
   completed,
@@ -54,20 +62,28 @@ describe('setFilter', () => {
 
 describe('addTodo', () => {
   it('正常系: テキストを渡すと createTodo が呼ばれる', async () => {
-    const newTodo = makeTodo('new-1')
+    const newTodo = makeTodo(1)
     vi.mocked(api.createTodo).mockResolvedValue(newTodo)
 
     await addTodo('新しいタスク')
 
-    expect(api.createTodo).toHaveBeenCalledWith('新しいタスク')
+    expect(api.createTodo).toHaveBeenCalledWith('新しいタスク', undefined)
   })
 
   it('正常系: 前後の空白はトリムして createTodo が呼ばれる', async () => {
-    vi.mocked(api.createTodo).mockResolvedValue(makeTodo('new-1'))
+    vi.mocked(api.createTodo).mockResolvedValue(makeTodo(1))
 
     await addTodo('  タスク  ')
 
-    expect(api.createTodo).toHaveBeenCalledWith('タスク')
+    expect(api.createTodo).toHaveBeenCalledWith('タスク', undefined)
+  })
+
+  it('正常系: dueDate を渡すと createTodo に dueDate が渡される', async () => {
+    vi.mocked(api.createTodo).mockResolvedValue(makeTodo(1))
+
+    await addTodo('タスク', '2026-04-30')
+
+    expect(api.createTodo).toHaveBeenCalledWith('タスク', '2026-04-30')
   })
 
   it('境界値: 空文字のとき createTodo が呼ばれない', async () => {
@@ -81,12 +97,12 @@ describe('addTodo', () => {
   })
 
   it('境界値: 200文字ちょうどのとき createTodo が呼ばれる', async () => {
-    vi.mocked(api.createTodo).mockResolvedValue(makeTodo('new-1'))
+    vi.mocked(api.createTodo).mockResolvedValue(makeTodo(1))
     const text = 'a'.repeat(200)
 
     await addTodo(text)
 
-    expect(api.createTodo).toHaveBeenCalledWith(text)
+    expect(api.createTodo).toHaveBeenCalledWith(text, undefined)
   })
 
   it('境界値: 201文字のとき createTodo が呼ばれない', async () => {
@@ -101,42 +117,75 @@ describe('addTodo', () => {
   })
 })
 
+describe('updateDueDate', () => {
+  it('正常系: 値を渡すと { dueDate } で updateTodo が呼ばれる', async () => {
+    const todo = makeTodo(1)
+    vi.mocked(api.createTodo).mockResolvedValue(todo)
+    vi.mocked(api.updateTodo).mockResolvedValue({ ...todo, dueDate: '2026-04-30' })
+
+    await addTodo(todo.text)
+    await updateDueDate(1, '2026-04-30')
+
+    expect(api.updateTodo).toHaveBeenCalledWith(1, { dueDate: '2026-04-30' })
+  })
+
+  it('正常系: 空文字を渡すと { resetDueDate: true } で updateTodo が呼ばれる', async () => {
+    const todo = makeTodo(1)
+    vi.mocked(api.createTodo).mockResolvedValue(todo)
+    vi.mocked(api.updateTodo).mockResolvedValue(todo)
+
+    await addTodo(todo.text)
+    await updateDueDate(1, '')
+
+    expect(api.updateTodo).toHaveBeenCalledWith(1, { resetDueDate: true })
+  })
+
+  it('異常系: updateTodo がエラーをスローしても例外が伝播しない', async () => {
+    const todo = makeTodo(1)
+    vi.mocked(api.createTodo).mockResolvedValue(todo)
+    vi.mocked(api.updateTodo).mockRejectedValue(new Error('API Error'))
+
+    await addTodo(todo.text)
+    await expect(updateDueDate(1, '2026-04-30')).resolves.toBeUndefined()
+  })
+})
+
 describe('toggleTodo', () => {
   it('正常系: 対象Todoのcompletedを反転して updateTodo が呼ばれる', async () => {
-    const todo = makeTodo('t-1', false)
+    const todo = makeTodo(1, false)
     vi.mocked(api.createTodo).mockResolvedValue(todo)
     vi.mocked(api.updateTodo).mockResolvedValue({ ...todo, completed: true })
 
     await addTodo(todo.text)
-    await toggleTodo('t-1')
+    await toggleTodo(1)
 
-    expect(api.updateTodo).toHaveBeenCalledWith('t-1', { completed: true })
+    expect(api.updateTodo).toHaveBeenCalledWith(1, { completed: true })
   })
 
   it('異常系: updateTodo がエラーをスローしても例外が伝播しない', async () => {
-    vi.mocked(api.createTodo).mockResolvedValue(makeTodo('t-1', false))
+    vi.mocked(api.createTodo).mockResolvedValue(makeTodo(1, false))
     vi.mocked(api.updateTodo).mockRejectedValue(new Error('API Error'))
 
     await addTodo('テスト')
-    await expect(toggleTodo('t-1')).resolves.toBeUndefined()
+    await expect(toggleTodo(1)).resolves.toBeUndefined()
   })
 })
 
 describe('deleteTodo', () => {
   it('正常系: deleteTodoById が対象IDで呼ばれる', async () => {
-    vi.mocked(api.createTodo).mockResolvedValue(makeTodo('d-1'))
+    vi.mocked(api.createTodo).mockResolvedValue(makeTodo(1))
     vi.mocked(api.deleteTodoById).mockResolvedValue(undefined)
 
     await addTodo('削除タスク')
-    await deleteTodo('d-1')
+    await deleteTodo(1)
 
-    expect(api.deleteTodoById).toHaveBeenCalledWith('d-1')
+    expect(api.deleteTodoById).toHaveBeenCalledWith(1)
   })
 
   it('異常系: deleteTodoById がエラーをスローしても例外が伝播しない', async () => {
     vi.mocked(api.deleteTodoById).mockRejectedValue(new Error('API Error'))
 
-    await expect(deleteTodo('d-1')).resolves.toBeUndefined()
+    await expect(deleteTodo(1)).resolves.toBeUndefined()
   })
 })
 

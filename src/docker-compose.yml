@@ -26,6 +26,10 @@ services:
       # Host=db はdbコンテナ名を指す（Docker内ではサービス名でアクセスできる）。
       # ${} の値は .env ファイルから展開される。
       - ConnectionStrings__DefaultConnection=Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      # Serilog のログ出力先ディレクトリ。
+      # aspnet:9.0 イメージは非 root ユーザー（app）で動作するため、/log への書き込みが失敗する。
+      # コンテナ内の /app（WORKDIR）配下を指定することで書き込み権限の問題を回避する。
+      - LOG_DIR=/app/log
     # depends_on:起動順序の制御を行う。
     depends_on:
       db:

@@ -30,15 +30,16 @@ const MAX_TEXT_LENGTH = 200
  * 空文字・空白のみ・最大文字数超過の場合は何もしない
  *
  * @param text - タスクのテキスト
+ * @param dueDate - 締め切り日（YYYY-MM-DD形式、省略可）
  */
-export const addTodo = async (text: string): Promise<void> => {
+export const addTodo = async (text: string, dueDate?: string): Promise<void> => {
   const trimmed = text.trim()
   if (!trimmed || trimmed.length > MAX_TEXT_LENGTH) return
 
   isLoading = true
   render()
   try {
-    const created = await createTodo(trimmed)
+    const created = await createTodo(trimmed, dueDate)
     todos = [...todos, created]
   } catch (err) {
     console.error('addTodo error:', err)
@@ -53,7 +54,7 @@ export const addTodo = async (text: string): Promise<void> => {
  *
  * @param id - 対象TodoのID
  */
-export const toggleTodo = async (id: string): Promise<void> => {
+export const toggleTodo = async (id: number): Promise<void> => {
   const target = todos.find((t) => t.id === id)
   if (!target) return
 
@@ -75,7 +76,7 @@ export const toggleTodo = async (id: string): Promise<void> => {
  *
  * @param id - 対象TodoのID
  */
-export const deleteTodo = async (id: string): Promise<void> => {
+export const deleteTodo = async (id: number): Promise<void> => {
   isLoading = true
   render()
   try {
@@ -83,6 +84,27 @@ export const deleteTodo = async (id: string): Promise<void> => {
     todos = todos.filter((t) => t.id !== id)
   } catch (err) {
     console.error('deleteTodo error:', err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+/**
+ * 指定IDのTodoの期限日を更新する
+ *
+ * @param id - 対象TodoのID
+ * @param value - 新しい期限日（YYYY-MM-DD形式）。空文字の場合は期限日をリセットする
+ */
+export const updateDueDate = async (id: number, value: string): Promise<void> => {
+  const patch = value ? { dueDate: value } : { resetDueDate: true }
+  isLoading = true
+  render()
+  try {
+    const updated = await updateTodo(id, patch)
+    todos = todos.map((t) => (t.id === id ? updated : t))
+  } catch (err) {
+    console.error('updateDueDate error:', err)
   } finally {
     isLoading = false
     render()
@@ -194,20 +216,71 @@ export const render = (): void => {
  */
 const setupEventListeners = (): void => {
   const input = document.querySelector<HTMLInputElement>(DOM_IDS.TODO_TEXT_INPUT)
+  const deadlineInput = document.querySelector<HTMLInputElement>(DOM_IDS.TODO_DEADLINE_INPUT)
   const addButton = document.querySelector<HTMLButtonElement>(DOM_IDS.ADD_TODO_BTN)
 
   input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      void addTodo(input.value)
+      void addTodo(input.value, deadlineInput?.value)
       input.value = ''
+      if (deadlineInput) deadlineInput.value = ''
     }
   })
 
   addButton?.addEventListener('click', () => {
     if (input) {
-      void addTodo(input.value)
+      void addTodo(input.value, deadlineInput?.value)
       input.value = ''
+      if (deadlineInput) deadlineInput.value = ''
     }
+  })
+
+  // 期限日インライン編集: spanクリックでinputに切り替え
+  document.querySelectorAll<HTMLSpanElement>('[data-due-date-display-id]').forEach((span) => {
+    span.addEventListener('click', () => {
+      const id = span.dataset['dueDateDisplayId']
+      if (!id) return
+      const editInput = document.querySelector<HTMLInputElement>(`[data-due-date-edit-id="${id}"]`)
+      if (!editInput) return
+      span.classList.add('hidden')
+      editInput.classList.remove('hidden')
+      editInput.focus()
+    })
+  })
+
+  // 期限日インライン編集: change で保存
+  document.querySelectorAll<HTMLInputElement>('[data-due-date-edit-id]').forEach((editInput) => {
+    let saved = false
+
+    editInput.addEventListener('change', () => {
+      saved = true
+      const id = editInput.dataset['dueDateEditId']
+      if (!id) return
+      void updateDueDate(Number(id), editInput.value)
+    })
+
+    editInput.addEventListener('blur', () => {
+      if (saved) return
+      // changeが発火しなかった場合（値変更なしでblur）はspanに戻す
+      const id = editInput.dataset['dueDateEditId']
+      if (!id) return
+      const span = document.querySelector<HTMLSpanElement>(`[data-due-date-display-id="${id}"]`)
+      if (!span) return
+      editInput.classList.add('hidden')
+      span.classList.remove('hidden')
+    })
+
+    editInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        saved = true // changeを抑制
+        const id = editInput.dataset['dueDateEditId']
+        if (!id) return
+        const span = document.querySelector<HTMLSpanElement>(`[data-due-date-display-id="${id}"]`)
+        if (!span) return
+        editInput.classList.add('hidden')
+        span.classList.remove('hidden')
+      }
+    })
   })
 
   document
@@ -220,7 +293,7 @@ const setupEventListeners = (): void => {
   document.querySelectorAll<HTMLButtonElement>('button[data-id]').forEach((btn) => {
     btn.addEventListener('click', () => {
       // 末尾の「!」- non-null アサーション（値が必ず存在すると断言する記述）
-      void toggleTodo(btn.dataset['id']!)
+      void toggleTodo(Number(btn.dataset['id']!))
     })
   })
 }

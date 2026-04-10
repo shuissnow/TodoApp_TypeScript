@@ -11,7 +11,7 @@ import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers
 const createCheckButton = (todo: Todo, isLoading: boolean): HTMLElement => {
   const button = document.createElement('button')
   button.type = 'button'
-  button.dataset['id'] = todo.id
+  button.dataset['id'] = String(todo.id)
   button.disabled = isLoading
   button.setAttribute(
     'aria-label',
@@ -72,13 +72,25 @@ const createTableRow = (todo: Todo, isLoading: boolean): HTMLElement => {
   tdText.appendChild(textSpan)
   tr.appendChild(tdText)
 
-  // 締め切り列
+  // 締め切り列（クリックでインライン編集）
   const tdDeadline = document.createElement('td')
-  tdDeadline.className = 'py-2.5 px-3 w-[100px]'
-  const deadlineSpan = document.createElement('span')
-  deadlineSpan.textContent = todo.deadline ?? '—'
-  deadlineSpan.className = 'text-sm text-gray-900'
-  tdDeadline.appendChild(deadlineSpan)
+  tdDeadline.className = 'py-2.5 px-3 w-[120px]'
+
+  const dueDateSpan = document.createElement('span')
+  dueDateSpan.dataset['dueDateDisplayId'] = String(todo.id)
+  dueDateSpan.textContent = todo.dueDate ?? '—'
+  dueDateSpan.className =
+    'text-sm text-gray-900 cursor-pointer hover:text-green-700 hover:underline'
+
+  const dueDateInput = document.createElement('input')
+  dueDateInput.type = 'date'
+  dueDateInput.dataset['dueDateEditId'] = String(todo.id)
+  dueDateInput.value = todo.dueDate ?? ''
+  dueDateInput.className =
+    'hidden text-sm border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-green-400 w-full'
+
+  tdDeadline.appendChild(dueDateSpan)
+  tdDeadline.appendChild(dueDateInput)
   tr.appendChild(tdDeadline)
 
   // 優先度列

@@ -2,12 +2,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
+# package-lock.jsonもとにインストールする（既存のnode_modeulesを削除する）
 RUN npm ci
 COPY . .
 RUN npm run build
 
 # Stage 2: 本番配信
 FROM nginx:alpine
+# AS builderからコピーする。/app/distを/usr/share/nginx/htmlにコピーする。
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

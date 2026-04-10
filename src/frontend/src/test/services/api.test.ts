@@ -15,13 +15,13 @@ describe('fetchTodos', () => {
   it('正常系: APIが200を返した場合、Todo配列を返す', async () => {
     const mockTodos = [
       {
-        id: 'aaaaaaaa-0000-0000-0000-000000000001',
+        id: 1,
         text: 'テスト1',
         completed: false,
         createdAt: '2026-04-01T00:00:00Z',
       },
       {
-        id: 'aaaaaaaa-0000-0000-0000-000000000002',
+        id: 2,
         text: 'テスト2',
         completed: true,
         createdAt: '2026-04-01T01:00:00Z',
@@ -104,7 +104,7 @@ describe('createTodo', () => {
 
   it('正常系: APIが201を返した場合、作成されたTodoを返す', async () => {
     const mockTodo = {
-      id: 'aaaaaaaa-0000-0000-0000-000000000001',
+      id: 1,
       text: '新タスク',
       completed: false,
       createdAt: '2026-04-01T00:00:00Z',
@@ -127,7 +127,7 @@ describe('createTodo', () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: 'aaaaaaaa-0000-0000-0000-000000000001',
+          id: 1,
           text: 'テスト',
           completed: false,
           createdAt: '2026-04-01T00:00:00Z',
@@ -142,6 +142,53 @@ describe('createTodo', () => {
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: 'テスト' }),
+      }),
+    )
+  })
+
+  it('正常系: dueDate を指定した場合、リクエストボディに dueDate が含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: 1,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+          dueDate: '2026-04-30',
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await createTodo('テスト', '2026-04-30')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/todos'),
+      expect.objectContaining({
+        body: JSON.stringify({ text: 'テスト', dueDate: '2026-04-30' }),
+      }),
+    )
+  })
+
+  it('正常系: dueDate を省略した場合、リクエストボディに dueDate が含まれない', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: 1,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await createTodo('テスト')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/todos'),
+      expect.objectContaining({
         body: JSON.stringify({ text: 'テスト' }),
       }),
     )
@@ -179,7 +226,7 @@ describe('createTodo', () => {
 })
 
 describe('updateTodo', () => {
-  const TODO_ID = 'aaaaaaaa-0000-0000-0000-000000000001'
+  const TODO_ID = 1
 
   beforeEach(() => {
     vi.resetAllMocks()
@@ -230,6 +277,53 @@ describe('updateTodo', () => {
     )
   })
 
+  it('正常系: dueDate を指定した場合、patch に dueDate が含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: TODO_ID,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+          dueDate: '2026-04-30',
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await updateTodo(TODO_ID, { dueDate: '2026-04-30' })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/todos/${TODO_ID}`),
+      expect.objectContaining({
+        body: JSON.stringify({ dueDate: '2026-04-30' }),
+      }),
+    )
+  })
+
+  it('正常系: resetDueDate=true を指定した場合、patch に含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: TODO_ID,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await updateTodo(TODO_ID, { resetDueDate: true })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/todos/${TODO_ID}`),
+      expect.objectContaining({
+        body: JSON.stringify({ resetDueDate: true }),
+      }),
+    )
+  })
+
   it('異常系: APIが404を返した場合、Errorをスローする', async () => {
     vi.stubGlobal(
       'fetch',
@@ -262,7 +356,7 @@ describe('updateTodo', () => {
 })
 
 describe('deleteTodoById', () => {
-  const TODO_ID = 'aaaaaaaa-0000-0000-0000-000000000001'
+  const TODO_ID = 1
 
   beforeEach(() => {
     vi.resetAllMocks()

@@ -1,7 +1,7 @@
 namespace TodoApp.Api.Models;
 
 /// <summary>
-/// Todo エンティティに関する定数
+/// Todoエンティティに関する定数
 /// </summary>
 public static class TodoConstants
 {

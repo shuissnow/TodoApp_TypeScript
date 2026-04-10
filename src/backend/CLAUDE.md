@@ -49,7 +49,22 @@ tests/TodoApp.Api.Tests/
 
 ## API ドキュメント（Scalar / OpenAPI）
 
+Scalar は `ASPNETCORE_ENVIRONMENT=Development` のときのみ有効（`docker-compose.dev.yml` 使用時）。
+
+### ローカル起動時（`dotnet run`）
+
 | 用途 | URL |
 |------|-----|
 | Scalar UI（API テスト） | `http://localhost:5243/scalar/v1` |
 | OpenAPI 仕様 JSON | `http://localhost:5243/openapi/v1.json` |
+
+### Docker 起動時（`docker-compose.dev.yml` 使用時）
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+| 用途 | URL |
+|------|-----|
+| Scalar UI（API テスト） | `http://localhost:8080/scalar/v1` |
+| OpenAPI 仕様 JSON | `http://localhost:8080/openapi/v1.json` |

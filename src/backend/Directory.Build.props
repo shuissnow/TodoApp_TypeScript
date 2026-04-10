@@ -15,7 +15,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- CS1591: XML doc コメント欠落の警告は抑制（GenerateDocumentationFile の副作用） -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!-- S1135: "TODO"コメント検出ルール。Todo アプリのドメイン用語（"todo", "Todo", "TODO API"等）と衝突するため無効化 -->
+    <NoWarn>$(NoWarn);CS1591;S1135</NoWarn>
 
     <!-- アナライザー警告をエラーとして扱い CI を失敗させる -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

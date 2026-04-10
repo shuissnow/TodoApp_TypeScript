@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { createTodoList } from '../../../components/organisms/TodoList'
 import type { Todo } from '../../../types/todo'
 
-const makeTodo = (id: string, completed = false): Todo => ({
+const makeTodo = (id: number, completed = false): Todo => ({
   id,
   text: `タスク${id}`,
   completed,
@@ -25,34 +25,34 @@ describe('createTodoList', () => {
 
   describe('todosがあるとき', () => {
     it('todos件数分のli要素が生成される', () => {
-      const wrapper = createTodoList([makeTodo('1'), makeTodo('2'), makeTodo('3')], false)
+      const wrapper = createTodoList([makeTodo(1), makeTodo(2), makeTodo(3)], false)
       const items = wrapper.querySelectorAll('li')
       expect(items.length).toBe(3)
     })
 
     it('各アイテムにdata-idが設定される', () => {
-      const wrapper = createTodoList([makeTodo('a'), makeTodo('b')], false)
+      const wrapper = createTodoList([makeTodo(1), makeTodo(2)], false)
       const ids = Array.from(wrapper.querySelectorAll<HTMLInputElement>('input[data-id]')).map(
         (el) => el.dataset['id'],
       )
-      expect(ids).toEqual(['a', 'b'])
+      expect(ids).toEqual(['1', '2'])
     })
 
     it('「タスクがありません」が表示されない', () => {
-      const wrapper = createTodoList([makeTodo('1')], false)
+      const wrapper = createTodoList([makeTodo(1)], false)
       expect(wrapper.textContent).not.toContain('タスクがありません')
     })
   })
 
   describe('isLoading', () => {
     it('isLoading=falseのとき、オーバーレイが表示されない', () => {
-      const wrapper = createTodoList([makeTodo('1')], false)
+      const wrapper = createTodoList([makeTodo(1)], false)
       const overlay = wrapper.querySelector('.bg-white\\/70')
       expect(overlay).toBeNull()
     })
 
     it('isLoading=trueのとき、オーバーレイが表示される', () => {
-      const wrapper = createTodoList([makeTodo('1')], true)
+      const wrapper = createTodoList([makeTodo(1)], true)
       const overlay = wrapper.querySelector('.bg-white\\/70')
       expect(overlay).not.toBeNull()
     })
@@ -70,7 +70,7 @@ describe('createTodoList', () => {
     })
 
     it('isLoading=trueのとき、各アイテムのチェックボックスがdisabledになる', () => {
-      const wrapper = createTodoList([makeTodo('1'), makeTodo('2')], true)
+      const wrapper = createTodoList([makeTodo(1), makeTodo(2)], true)
       const checkboxes = wrapper.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
       checkboxes.forEach((cb) => expect(cb.disabled).toBe(true))
     })

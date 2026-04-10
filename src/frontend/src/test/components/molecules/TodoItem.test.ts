@@ -3,7 +3,7 @@ import { createTodoItem } from '../../../components/molecules/TodoItem'
 import type { Todo } from '../../../types/todo'
 
 const baseTodo: Todo = {
-  id: 'test-id-1',
+  id: 1,
   text: '牛乳を買う',
   completed: false,
   createdAt: '2026-03-27T09:00:00.000Z',
@@ -14,13 +14,13 @@ describe('createTodoItem', () => {
     it('チェックボックスにdata-idが設定される', () => {
       const li = createTodoItem(baseTodo, false)
       const checkbox = li.querySelector<HTMLInputElement>('input[type="checkbox"]')
-      expect(checkbox?.dataset['id']).toBe('test-id-1')
+      expect(checkbox?.dataset['id']).toBe('1')
     })
 
     it('削除ボタンにdata-delete-idが設定される', () => {
       const li = createTodoItem(baseTodo, false)
       const deleteButton = li.querySelector<HTMLButtonElement>('[data-delete-id]')
-      expect(deleteButton?.dataset['deleteId']).toBe('test-id-1')
+      expect(deleteButton?.dataset['deleteId']).toBe('1')
     })
   })
 

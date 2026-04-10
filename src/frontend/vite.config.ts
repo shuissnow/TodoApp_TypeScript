@@ -12,6 +12,9 @@ export default defineConfig({
       clientPort: 5173,
     },
   },
+  build:{
+    sourcemap: true
+  },
   test: {
     environment: 'happy-dom',
     reporters: process.env.GITHUB_ACTIONS ? ['github-actions', 'verbose'] : ['verbose'],

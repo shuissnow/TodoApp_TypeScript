@@ -6,7 +6,7 @@ using TodoApp.Api.Services;
 namespace TodoApp.Api.Controllers;
 
 /// <summary>
-/// Todo APIコントローラー
+/// TODOAPIコントローラー
 /// </summary>
 [ApiController]
 [Route("api/todos")]
@@ -40,7 +40,7 @@ public class TodosController(ITodoService service) : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] CreateTodoRequest request)
     {
         Todo todo = await service.CreateAsync(request);
-        return CreatedAtAction(nameof(GetAllAsync), new { id = todo.Id }, todo);
+        return Created("/api/todos", todo);
     }
 
     /// <summary>

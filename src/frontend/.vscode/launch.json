@@ -5,13 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "msedge",
             "request": "launch",
-            "name": "TypeScriptの起動",
-            "preLaunchTask": "TSC Compile",
-            "cwd": "${workspaceFolder}",
-            "program": "${file}",
-            "console": "internalConsole"
+            "name": "Launch Edge against localhost",
+            "url": "http://localhost:5173/",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }

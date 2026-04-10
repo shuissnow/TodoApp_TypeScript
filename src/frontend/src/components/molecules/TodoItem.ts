@@ -17,7 +17,7 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
   li.className = 'flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0 group'
 
   const checkbox = createCheckbox({
-    dataId: todo.id,
+    dataId: String(todo.id),
     checked: todo.completed,
     disabled: isLoading,
     ariaLabel: `「${todo.text}」を完了にする`,
@@ -32,7 +32,7 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
 
   const deleteButton = document.createElement('button')
   deleteButton.type = 'button'
-  deleteButton.dataset['deleteId'] = todo.id
+  deleteButton.dataset['deleteId'] = String(todo.id)
   deleteButton.textContent = '削除'
   deleteButton.disabled = isLoading
   deleteButton.className =

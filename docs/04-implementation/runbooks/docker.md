@@ -48,6 +48,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## docker compose コマンド
 
+docker compose -f docker-compose.yml -f docker-compose.dev.yml config マージ結果を確認する
+
 ### 起動・停止
 
 | コマンド | 説明 |

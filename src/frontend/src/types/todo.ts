@@ -2,8 +2,8 @@
  * Todoアイテムの型定義
  */
 export interface Todo {
-  /** ユニークID（タイムスタンプ + ランダム文字列） */
-  id: string
+  /** ユニークID（バックエンドが採番する整数） */
+  id: number
   /** タスクのテキスト内容 */
   text: string
   /** 完了フラグ */
@@ -12,8 +12,8 @@ export interface Todo {
   createdAt: string
   /** 優先度（オプション） */
   priority?: Priority
-  /** 締め切り日（ISO 8601形式、オプション） */
-  deadline?: string
+  /** 締め切り日（YYYY-MM-DD形式、オプション） */
+  dueDate?: string
 }
 
 /**
@@ -23,6 +23,16 @@ export interface Todo {
  * - `low`: 低
  */
 export type Priority = 'high' | 'mid' | 'low'
+
+/**
+ * カテゴリ
+ */
+export interface Category {
+  /** ユニークID */
+  id: string
+  /** カテゴリ名 */
+  name: string
+}
 
 /**
  * 表示ビュー種別

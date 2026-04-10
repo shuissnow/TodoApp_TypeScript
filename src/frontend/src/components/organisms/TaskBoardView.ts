@@ -26,11 +26,11 @@ const createCard = (todo: Todo): HTMLElement => {
   meta.className = 'flex items-center gap-1.5'
   meta.appendChild(createPriorityBadge(todo.priority))
 
-  if (todo.deadline) {
-    const deadline = document.createElement('span')
-    deadline.textContent = todo.deadline
-    deadline.className = 'text-xs text-gray-400'
-    meta.appendChild(deadline)
+  if (todo.dueDate) {
+    const dueDate = document.createElement('span')
+    dueDate.textContent = todo.dueDate
+    dueDate.className = 'text-xs text-gray-400'
+    meta.appendChild(dueDate)
   }
 
   card.appendChild(meta)
