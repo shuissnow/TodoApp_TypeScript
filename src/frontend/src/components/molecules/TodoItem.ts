@@ -35,8 +35,7 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
   deleteButton.dataset['deleteId'] = String(todo.id)
   deleteButton.textContent = '削除'
   deleteButton.disabled = isLoading
-  deleteButton.className =
-    'px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed'
+  deleteButton.className = 'px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed'
   deleteButton.setAttribute('aria-label', `「${todo.text}」を削除する`)
 
   li.appendChild(checkbox)

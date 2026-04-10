@@ -17,12 +17,18 @@ export interface Todo {
 }
 
 /**
- * タスク優先度
- * - `high`: 高
- * - `mid`: 中
- * - `low`: 低
+ * タスク優先度（バックエンドの priorities テーブルに対応）
  */
-export type Priority = 'high' | 'mid' | 'low'
+export interface Priority {
+  /** 優先度ID（"001" / "002" / "003"） */
+  id: string
+  /** 優先度名（"高" / "中" / "低"） */
+  name: string
+  /** 文字色（例: "#EF4444"） */
+  foregroundColor: string
+  /** 背景色（例: "#FEE2E2"） */
+  backgroundColor: string
+}
 
 /**
  * カテゴリ

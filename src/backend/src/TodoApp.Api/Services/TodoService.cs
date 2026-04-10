@@ -29,6 +29,7 @@ public class TodoService(ITodoRepository repository) : ITodoService
             Completed = false,
             CreatedAt = DateTime.UtcNow,
             DueDate = request.DueDate,
+            PriorityId = request.PriorityId,
         };
         return await repository.CreateAsync(todo);
     }
@@ -48,6 +49,7 @@ public class TodoService(ITodoRepository repository) : ITodoService
         if (request.Completed is not null) todo.Completed = request.Completed.Value;
         if (request.ResetDueDate == true) todo.DueDate = null;
         else if (request.DueDate is not null) todo.DueDate = request.DueDate;
+        if (request.PriorityId is not null) todo.PriorityId = request.PriorityId;
 
         return await repository.UpdateAsync(todo);
     }

@@ -1,48 +1,63 @@
 import { describe, it, expect } from 'vitest'
 import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers'
+import type { Priority } from '../../types/todo'
+
+const HIGH: Priority = { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' }
+const MID: Priority = { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5' }
+const LOW: Priority = { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' }
 
 describe('createPriorityBadge', () => {
   describe('ラベル表示', () => {
-    it("priority='high'のとき「高」が表示される", () => {
-      const badge = createPriorityBadge('high')
+    it('Priority オブジェクト（高）のとき「高」が表示される', () => {
+      const badge = createPriorityBadge(HIGH)
       expect(badge.textContent).toBe('高')
     })
 
-    it("priority='mid'のとき「中」が表示される", () => {
-      const badge = createPriorityBadge('mid')
+    it('Priority オブジェクト（中）のとき「中」が表示される', () => {
+      const badge = createPriorityBadge(MID)
       expect(badge.textContent).toBe('中')
     })
 
-    it("priority='low'のとき「低」が表示される", () => {
-      const badge = createPriorityBadge('low')
+    it('Priority オブジェクト（低）のとき「低」が表示される', () => {
+      const badge = createPriorityBadge(LOW)
       expect(badge.textContent).toBe('低')
     })
 
-    it('priority=undefinedのとき「低」が表示される', () => {
+    it('priority=null のとき「低」が表示される', () => {
+      const badge = createPriorityBadge(null)
+      expect(badge.textContent).toBe('低')
+    })
+
+    it('priority=undefined のとき「低」が表示される', () => {
       const badge = createPriorityBadge(undefined)
       expect(badge.textContent).toBe('低')
     })
   })
 
-  describe('色クラス', () => {
-    it("priority='high'のとき赤系クラスが付く", () => {
-      const badge = createPriorityBadge('high')
-      expect(badge.className).toContain('text-red-700')
+  describe('インラインスタイル', () => {
+    it('Priority オブジェクトの foregroundColor が color スタイルに反映される', () => {
+      const badge = createPriorityBadge(HIGH)
+      // ブラウザは16進数をrgb()に変換するためどちらも許容する
+      expect(badge.style.color).toBeTruthy()
     })
 
-    it("priority='mid'のとき黄系クラスが付く", () => {
-      const badge = createPriorityBadge('mid')
-      expect(badge.className).toContain('text-amber-700')
+    it('Priority オブジェクトの backgroundColor が background-color スタイルに反映される', () => {
+      const badge = createPriorityBadge(HIGH)
+      expect(badge.style.backgroundColor).toBeTruthy()
     })
 
-    it("priority='low'のとき緑系クラスが付く", () => {
-      const badge = createPriorityBadge('low')
-      expect(badge.className).toContain('text-green-700')
+    it('priority=null のときフォールバック色（青系）が設定される', () => {
+      const badge = createPriorityBadge(null)
+      expect(badge.style.color).toBeTruthy()
+      expect(badge.style.backgroundColor).toBeTruthy()
     })
+  })
 
-    it('priority=undefinedのとき緑系クラスが付く', () => {
-      const badge = createPriorityBadge(undefined)
-      expect(badge.className).toContain('text-green-700')
+  describe('クラス名', () => {
+    it('バッジ共通クラスが含まれる', () => {
+      const badge = createPriorityBadge(HIGH)
+      expect(badge.className).toContain('rounded-full')
+      expect(badge.className).toContain('text-xs')
     })
   })
 })

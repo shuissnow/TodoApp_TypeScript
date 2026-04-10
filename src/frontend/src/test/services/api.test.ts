@@ -1,11 +1,64 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
+  fetchPriorities,
   fetchTodos,
   createTodo,
   updateTodo,
   deleteTodoById,
   deleteCompleted,
 } from '../../services/api'
+
+describe('fetchPriorities', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('正常系: APIが200を返した場合、Priority配列を返す', async () => {
+    const mockPriorities = [
+      { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2', displayOrder: 1 },
+      { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5', displayOrder: 2 },
+      { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE', displayOrder: 3 },
+    ]
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockPriorities),
+      }),
+    )
+
+    const result = await fetchPriorities()
+
+    expect(result).toEqual(mockPriorities)
+  })
+
+  it('正常系: GET /api/priorities を呼び出す', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await fetchPriorities()
+
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/priorities'))
+  })
+
+  it('異常系: APIが500を返した場合、Errorをスローする', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+    )
+
+    await expect(fetchPriorities()).rejects.toThrow('fetchPriorities failed: 500')
+  })
+
+  it('異常系: ネットワークエラーが発生した場合、Errorをスローする', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network Error')))
+
+    await expect(fetchPriorities()).rejects.toThrow('Network Error')
+  })
+})
 
 describe('fetchTodos', () => {
   beforeEach(() => {
@@ -194,6 +247,48 @@ describe('createTodo', () => {
     )
   })
 
+  it('正常系: priorityId を指定した場合、リクエストボディに priorityId が含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: 1,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+          priority: { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await createTodo('テスト', undefined, '001')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/todos'),
+      expect.objectContaining({
+        body: JSON.stringify({ text: 'テスト', priorityId: '001' }),
+      }),
+    )
+  })
+
+  it('正常系: priorityId を省略した場合、リクエストボディに priorityId が含まれない', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ id: 1, text: 'テスト', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await createTodo('テスト')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/todos'),
+      expect.objectContaining({
+        body: JSON.stringify({ text: 'テスト' }),
+      }),
+    )
+  })
+
   it('異常系: APIが400を返した場合、Errorをスローする', async () => {
     vi.stubGlobal(
       'fetch',
@@ -297,6 +392,48 @@ describe('updateTodo', () => {
       expect.stringContaining(`/api/todos/${TODO_ID}`),
       expect.objectContaining({
         body: JSON.stringify({ dueDate: '2026-04-30' }),
+      }),
+    )
+  })
+
+  it('正常系: priorityId を指定した場合、patch に priorityId が含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: TODO_ID,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+          priority: { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
+        }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await updateTodo(TODO_ID, { priorityId: '001' })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/todos/${TODO_ID}`),
+      expect.objectContaining({
+        body: JSON.stringify({ priorityId: '001' }),
+      }),
+    )
+  })
+
+  it('正常系: priorityId=null を指定した場合、patch に priorityId: null が含まれる', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ id: TODO_ID, text: 'テスト', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    await updateTodo(TODO_ID, { priorityId: null })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(`/api/todos/${TODO_ID}`),
+      expect.objectContaining({
+        body: JSON.stringify({ priorityId: null }),
       }),
     )
   })

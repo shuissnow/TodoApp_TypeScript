@@ -56,6 +56,7 @@ builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
 // リポジトリ・サービスを DI コンテナに登録する（スコープ単位でインスタンスを生成）
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<ITodoService, TodoService>();
+builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
 
 // MVC コントローラーと OpenAPI（Swagger）仕様の生成を有効化する
 builder.Services.AddControllers();

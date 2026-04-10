@@ -67,7 +67,7 @@ describe('addTodo', () => {
 
     await addTodo('新しいタスク')
 
-    expect(api.createTodo).toHaveBeenCalledWith('新しいタスク', undefined)
+    expect(api.createTodo).toHaveBeenCalledWith('新しいタスク', undefined, undefined)
   })
 
   it('正常系: 前後の空白はトリムして createTodo が呼ばれる', async () => {
@@ -75,7 +75,7 @@ describe('addTodo', () => {
 
     await addTodo('  タスク  ')
 
-    expect(api.createTodo).toHaveBeenCalledWith('タスク', undefined)
+    expect(api.createTodo).toHaveBeenCalledWith('タスク', undefined, undefined)
   })
 
   it('正常系: dueDate を渡すと createTodo に dueDate が渡される', async () => {
@@ -83,7 +83,7 @@ describe('addTodo', () => {
 
     await addTodo('タスク', '2026-04-30')
 
-    expect(api.createTodo).toHaveBeenCalledWith('タスク', '2026-04-30')
+    expect(api.createTodo).toHaveBeenCalledWith('タスク', '2026-04-30', undefined)
   })
 
   it('境界値: 空文字のとき createTodo が呼ばれない', async () => {
@@ -102,7 +102,7 @@ describe('addTodo', () => {
 
     await addTodo(text)
 
-    expect(api.createTodo).toHaveBeenCalledWith(text, undefined)
+    expect(api.createTodo).toHaveBeenCalledWith(text, undefined, undefined)
   })
 
   it('境界値: 201文字のとき createTodo が呼ばれない', async () => {

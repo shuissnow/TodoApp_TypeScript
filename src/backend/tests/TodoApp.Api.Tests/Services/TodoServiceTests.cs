@@ -221,6 +221,68 @@ public class TodoServiceTests
         Assert.Equal(originalDueDate, result!.DueDate);
     }
 
+    [Fact]
+    public async Task CreateAsync_SetsPriorityIdFromRequest()
+    {
+        // Arrange
+        CreateTodoRequest request = new CreateTodoRequest { Text = "タスク", PriorityId = "001" };
+        _repositoryMock
+            .Setup(r => r.CreateAsync(It.IsAny<Todo>()))
+            .ReturnsAsync((Todo t) => t);
+
+        // Act
+        Todo result = await _sut.CreateAsync(request);
+
+        // Assert
+        Assert.Equal("001", result.PriorityId);
+    }
+
+    [Fact]
+    public async Task CreateAsync_SetsPriorityIdToNull_WhenPriorityIdNotProvided()
+    {
+        // Arrange
+        CreateTodoRequest request = new CreateTodoRequest { Text = "タスク" };
+        _repositoryMock
+            .Setup(r => r.CreateAsync(It.IsAny<Todo>()))
+            .ReturnsAsync((Todo t) => t);
+
+        // Act
+        Todo result = await _sut.CreateAsync(request);
+
+        // Assert
+        Assert.Null(result.PriorityId);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_SetsPriorityId_WhenPriorityIdProvided()
+    {
+        // Arrange
+        Todo todo = new Todo { Id = 1, Text = "タスク", Completed = false, CreatedAt = DateTime.UtcNow, PriorityId = null };
+        _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
+        _repositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Todo>())).ReturnsAsync((Todo t) => t);
+
+        // Act
+        Todo? result = await _sut.UpdateAsync(todo.Id, new UpdateTodoRequest { PriorityId = "001" });
+
+        // Assert
+        Assert.Equal("001", result!.PriorityId);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_DoesNotChangePriorityId_WhenPriorityIdIsNull()
+    {
+        // Arrange
+        Todo todo = new Todo { Id = 1, Text = "タスク", Completed = false, CreatedAt = DateTime.UtcNow, PriorityId = "002" };
+        _repositoryMock.Setup(r => r.GetByIdAsync(todo.Id)).ReturnsAsync(todo);
+        _repositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Todo>())).ReturnsAsync((Todo t) => t);
+
+        // Act
+        Todo? result = await _sut.UpdateAsync(todo.Id, new UpdateTodoRequest { Completed = true });
+
+        // Assert
+        Assert.Equal("002", result!.PriorityId);
+    }
+
     // --- DeleteAsync ---
 
     [Fact]

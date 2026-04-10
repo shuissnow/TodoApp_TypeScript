@@ -1,8 +1,22 @@
-import type { Todo } from '../types/todo'
+import type { Priority, Todo } from '../types/todo'
 
 /** バックエンドAPIのベースURL（環境変数から取得） */
 const BASE_URL =
   (import.meta.env['VITE_API_BASE_URL'] as string | undefined) ?? 'http://localhost:8080'
+
+/**
+ * 優先度一覧をAPIから取得する
+ *
+ * @returns Priority配列（display_order 昇順）
+ * @throws APIエラー時にErrorをスロー
+ */
+export const fetchPriorities = async (): Promise<Priority[]> => {
+  const response = await fetch(`${BASE_URL}/api/priorities`)
+  if (!response.ok) {
+    throw new Error(`fetchPriorities failed: ${response.status}`)
+  }
+  return response.json() as Promise<Priority[]>
+}
 
 /**
  * タスク一覧をAPIから取得する
@@ -23,12 +37,14 @@ export const fetchTodos = async (): Promise<Todo[]> => {
  *
  * @param text - タスクのテキスト内容
  * @param dueDate - 締め切り日（YYYY-MM-DD形式、省略可）
+ * @param priorityId - 優先度ID（省略可）
  * @returns 作成されたTodo
  * @throws APIエラー時にErrorをスロー
  */
-export const createTodo = async (text: string, dueDate?: string): Promise<Todo> => {
-  const body: { text: string; dueDate?: string } = { text }
+export const createTodo = async (text: string, dueDate?: string, priorityId?: string): Promise<Todo> => {
+  const body: { text: string; dueDate?: string; priorityId?: string } = { text }
   if (dueDate) body.dueDate = dueDate
+  if (priorityId) body.priorityId = priorityId
   const response = await fetch(`${BASE_URL}/api/todos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -50,7 +66,7 @@ export const createTodo = async (text: string, dueDate?: string): Promise<Todo> 
  */
 export const updateTodo = async (
   id: number,
-  patch: { text?: string; completed?: boolean; dueDate?: string; resetDueDate?: boolean },
+  patch: { text?: string; completed?: boolean; dueDate?: string; resetDueDate?: boolean; priorityId?: string | null },
 ): Promise<Todo> => {
   const response = await fetch(`${BASE_URL}/api/todos/${id}`, {
     method: 'PUT',

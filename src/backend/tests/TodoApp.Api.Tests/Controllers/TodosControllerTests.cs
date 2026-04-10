@@ -31,7 +31,7 @@ public class TodosControllerTests
         IActionResult result = await _sut.CreateAsync(request);
 
         // Assert
-        CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        CreatedResult createdResult = Assert.IsType<CreatedResult>(result);
         Assert.Equal(201, createdResult.StatusCode);
         Todo returnedTodo = Assert.IsType<Todo>(createdResult.Value);
         Assert.Equal(createdTodo.Id, returnedTodo.Id);

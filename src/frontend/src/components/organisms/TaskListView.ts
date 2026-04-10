@@ -1,4 +1,5 @@
-import type { Todo } from '../../types/todo'
+import type { Priority, Todo } from '../../types/todo'
+import { createPrioritySelect } from '../atoms/PrioritySelect'
 import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers'
 
 /**
@@ -49,9 +50,10 @@ const createCheckButton = (todo: Todo, isLoading: boolean): HTMLElement => {
  *
  * @param todo - 表示するTodo
  * @param isLoading - ローディング中フラグ
+ * @param priorities - 優先度選択肢一覧
  * @returns `<tr>` 要素
  */
-const createTableRow = (todo: Todo, isLoading: boolean): HTMLElement => {
+const createTableRow = (todo: Todo, isLoading: boolean, priorities: Priority[]): HTMLElement => {
   const tr = document.createElement('tr')
   tr.className = 'border-b border-gray-100 last:border-0'
 
@@ -93,10 +95,25 @@ const createTableRow = (todo: Todo, isLoading: boolean): HTMLElement => {
   tdDeadline.appendChild(dueDateInput)
   tr.appendChild(tdDeadline)
 
-  // 優先度列
+  // 優先度列（クリックでインライン編集）
   const tdPriority = document.createElement('td')
-  tdPriority.className = 'py-2.5 px-3 w-[72px]'
-  tdPriority.appendChild(createPriorityBadge(todo.priority))
+  tdPriority.className = 'py-2.5 px-3 w-[100px]'
+
+  const priorityBadgeWrap = document.createElement('span')
+  priorityBadgeWrap.dataset['priorityDisplayId'] = String(todo.id)
+  priorityBadgeWrap.className = 'cursor-pointer'
+  priorityBadgeWrap.appendChild(createPriorityBadge(todo.priority))
+
+  const priorityEditSelect = createPrioritySelect({
+    id: `priority-select-${todo.id}`,
+    priorities,
+    value: todo.priority?.id ?? '',
+  })
+  priorityEditSelect.dataset['priorityEditId'] = String(todo.id)
+  priorityEditSelect.classList.add('hidden')
+
+  tdPriority.appendChild(priorityBadgeWrap)
+  tdPriority.appendChild(priorityEditSelect)
   tr.appendChild(tdPriority)
 
   // ステータス列
@@ -116,9 +133,14 @@ const createTableRow = (todo: Todo, isLoading: boolean): HTMLElement => {
  *
  * @param todos - 表示するTodo配列
  * @param isLoading - ローディング中フラグ
+ * @param priorities - 優先度選択肢一覧
  * @returns テーブルを包む `<div>` 要素
  */
-export const createTaskListView = (todos: Todo[], isLoading: boolean): HTMLElement => {
+export const createTaskListView = (
+  todos: Todo[],
+  isLoading: boolean,
+  priorities: Priority[],
+): HTMLElement => {
   const wrapper = document.createElement('div')
   wrapper.className = 'relative overflow-x-auto'
 
@@ -141,7 +163,7 @@ export const createTaskListView = (todos: Todo[], isLoading: boolean): HTMLEleme
     { label: '', className: 'w-8' },
     { label: 'タスク名', className: '' },
     { label: '締め切り', className: 'w-[100px]' },
-    { label: '優先度', className: 'w-[72px]' },
+    { label: '優先度', className: 'w-[100px]' },
     { label: 'ステータス', className: 'w-[72px]' },
   ]
   headers.forEach(({ label, className }) => {
@@ -157,7 +179,7 @@ export const createTaskListView = (todos: Todo[], isLoading: boolean): HTMLEleme
   // tbody
   const tbody = document.createElement('tbody')
   todos.forEach((todo) => {
-    tbody.appendChild(createTableRow(todo, isLoading))
+    tbody.appendChild(createTableRow(todo, isLoading, priorities))
   })
   table.appendChild(tbody)
 

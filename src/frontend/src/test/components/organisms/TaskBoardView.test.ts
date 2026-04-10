@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { createTaskBoardView } from '../../../components/organisms/TaskBoardView'
-import type { Todo } from '../../../types/todo'
+import type { Priority, Todo } from '../../../types/todo'
+
+const PRIORITIES: Priority[] = [
+  { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
+  { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5' },
+  { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' },
+]
 
 const makeTodo = (id: number, overrides: Partial<Todo> = {}): Todo => ({
   id,
@@ -82,18 +88,23 @@ describe('createTaskBoardView', () => {
   })
 
   describe('優先度バッジ', () => {
-    it("priority='high'のとき「高」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo(1, { priority: 'high' })])
+    it('Priority オブジェクト（高）のとき「高」バッジが表示される', () => {
+      const board = createTaskBoardView([makeTodo(1, { priority: PRIORITIES[0] })])
       expect(board.textContent).toContain('高')
     })
 
-    it("priority='mid'のとき「中」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo(1, { priority: 'mid' })])
+    it('Priority オブジェクト（中）のとき「中」バッジが表示される', () => {
+      const board = createTaskBoardView([makeTodo(1, { priority: PRIORITIES[1] })])
       expect(board.textContent).toContain('中')
     })
 
-    it("priority='low'のとき「低」バッジが表示される", () => {
-      const board = createTaskBoardView([makeTodo(1, { priority: 'low' })])
+    it('Priority オブジェクト（低）のとき「低」バッジが表示される', () => {
+      const board = createTaskBoardView([makeTodo(1, { priority: PRIORITIES[2] })])
+      expect(board.textContent).toContain('低')
+    })
+
+    it('priority=undefined のとき「低」バッジが表示される（nullフォールバック）', () => {
+      const board = createTaskBoardView([makeTodo(1)])
       expect(board.textContent).toContain('低')
     })
   })

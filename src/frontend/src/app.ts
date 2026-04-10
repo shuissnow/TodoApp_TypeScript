@@ -1,5 +1,12 @@
-import type { FilterType, Todo, ViewType } from './types/todo'
-import { fetchTodos, createTodo, updateTodo, deleteTodoById, deleteCompleted } from './services/api'
+import type { FilterType, Priority, Todo, ViewType } from './types/todo'
+import {
+  fetchTodos,
+  fetchPriorities,
+  createTodo,
+  updateTodo,
+  deleteTodoById,
+  deleteCompleted,
+} from './services/api'
 import { createTodoInput } from './components/molecules/TodoInput'
 import { createViewToggle } from './components/molecules/ViewToggle'
 import { createTaskListView } from './components/organisms/TaskListView'
@@ -11,6 +18,9 @@ import { DOM_IDS } from './utils/domIds'
 
 /** 全Todoの状態 */
 let todos: Todo[] = []
+
+/** 優先度マスタの状態 */
+let priorities: Priority[] = []
 
 /** 現在選択中のフィルター */
 let filter: FilterType = 'all'
@@ -31,15 +41,16 @@ const MAX_TEXT_LENGTH = 200
  *
  * @param text - タスクのテキスト
  * @param dueDate - 締め切り日（YYYY-MM-DD形式、省略可）
+ * @param priorityId - 優先度ID（省略可）
  */
-export const addTodo = async (text: string, dueDate?: string): Promise<void> => {
+export const addTodo = async (text: string, dueDate?: string, priorityId?: string): Promise<void> => {
   const trimmed = text.trim()
   if (!trimmed || trimmed.length > MAX_TEXT_LENGTH) return
 
   isLoading = true
   render()
   try {
-    const created = await createTodo(trimmed, dueDate)
+    const created = await createTodo(trimmed, dueDate, priorityId)
     todos = [...todos, created]
   } catch (err) {
     console.error('addTodo error:', err)
@@ -105,6 +116,27 @@ export const updateDueDate = async (id: number, value: string): Promise<void> =>
     todos = todos.map((t) => (t.id === id ? updated : t))
   } catch (err) {
     console.error('updateDueDate error:', err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+/**
+ * 指定IDのTodoの優先度を更新する
+ *
+ * @param id - 対象TodoのID
+ * @param priorityId - 新しい優先度ID。空文字の場合は優先度をリセットする
+ */
+export const updatePriority = async (id: number, priorityId: string): Promise<void> => {
+  const patch = priorityId ? { priorityId } : { priorityId: null }
+  isLoading = true
+  render()
+  try {
+    const updated = await updateTodo(id, patch)
+    todos = todos.map((t) => (t.id === id ? updated : t))
+  } catch (err) {
+    console.error('updatePriority error:', err)
   } finally {
     isLoading = false
     render()
@@ -184,13 +216,15 @@ export const render = (): void => {
 
   // タスクビュー
   const taskView: HTMLElement =
-    viewType === 'list' ? createTaskListView(filtered, isLoading) : createTaskBoardView(filtered)
+    viewType === 'list'
+      ? createTaskListView(filtered, isLoading, priorities)
+      : createTaskBoardView(filtered)
 
   const root = createAppLayout({
     header: createHeader(),
     contentChildren: [
       sectionTitle,
-      createTodoInput(isLoading),
+      createTodoInput(isLoading, priorities),
       divider,
       createViewToggle(viewType),
       taskView,
@@ -213,25 +247,30 @@ export const render = (): void => {
  * - 「追加」ボタンのクリック → {@link addTodo}
  * - ビュー切り替えボタンのクリック → {@link toggleViewType}
  * - チェックボタンのクリック → {@link toggleTodo}
+ * - 優先度バッジのクリック → インライン編集に切り替え
+ * - 優先度セレクトの change → {@link updatePriority}
  */
 const setupEventListeners = (): void => {
   const input = document.querySelector<HTMLInputElement>(DOM_IDS.TODO_TEXT_INPUT)
   const deadlineInput = document.querySelector<HTMLInputElement>(DOM_IDS.TODO_DEADLINE_INPUT)
+  const prioritySelect = document.querySelector<HTMLSelectElement>(DOM_IDS.TODO_PRIORITY_SELECT)
   const addButton = document.querySelector<HTMLButtonElement>(DOM_IDS.ADD_TODO_BTN)
 
   input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      void addTodo(input.value, deadlineInput?.value)
+      void addTodo(input.value, deadlineInput?.value, prioritySelect?.value)
       input.value = ''
       if (deadlineInput) deadlineInput.value = ''
+      if (prioritySelect) prioritySelect.value = ''
     }
   })
 
   addButton?.addEventListener('click', () => {
     if (input) {
-      void addTodo(input.value, deadlineInput?.value)
+      void addTodo(input.value, deadlineInput?.value, prioritySelect?.value)
       input.value = ''
       if (deadlineInput) deadlineInput.value = ''
+      if (prioritySelect) prioritySelect.value = ''
     }
   })
 
@@ -283,6 +322,50 @@ const setupEventListeners = (): void => {
     })
   })
 
+  // 優先度インライン編集: バッジwrapクリックでselectに切り替え
+  document
+    .querySelectorAll<HTMLSpanElement>('[data-priority-display-id]')
+    .forEach((wrap) => {
+      wrap.addEventListener('click', () => {
+        const id = wrap.dataset['priorityDisplayId']
+        if (!id) return
+        const editSelect = document.querySelector<HTMLSelectElement>(
+          `[data-priority-edit-id="${id}"]`,
+        )
+        if (!editSelect) return
+        wrap.classList.add('hidden')
+        editSelect.classList.remove('hidden')
+        editSelect.focus()
+      })
+    })
+
+  // 優先度インライン編集: change で保存
+  document
+    .querySelectorAll<HTMLSelectElement>('[data-priority-edit-id]')
+    .forEach((editSelect) => {
+      let saved = false
+
+      editSelect.addEventListener('change', () => {
+        saved = true
+        const id = editSelect.dataset['priorityEditId']
+        if (!id) return
+        void updatePriority(Number(id), editSelect.value)
+      })
+
+      editSelect.addEventListener('blur', () => {
+        if (saved) return
+        // changeが発火しなかった場合（値変更なしでblur）はバッジに戻す
+        const id = editSelect.dataset['priorityEditId']
+        if (!id) return
+        const wrap = document.querySelector<HTMLSpanElement>(
+          `[data-priority-display-id="${id}"]`,
+        )
+        if (!wrap) return
+        editSelect.classList.add('hidden')
+        wrap.classList.remove('hidden')
+      })
+    })
+
   document
     .querySelector<HTMLButtonElement>(DOM_IDS.VIEW_TOGGLE_BTN)
     ?.addEventListener('click', () => {
@@ -301,14 +384,19 @@ const setupEventListeners = (): void => {
 /**
  * アプリを初期化する
  *
- * APIからTodo一覧を取得し、初回描画を行う。
+ * APIからTodo一覧・優先度一覧を並列取得し、初回描画を行う。
  * DOMContentLoaded イベントで呼び出される。
  */
 const initApp = async (): Promise<void> => {
   isLoading = true
   render()
   try {
-    todos = await fetchTodos()
+    const [fetchedTodos, fetchedPriorities] = await Promise.all([
+      fetchTodos(),
+      fetchPriorities(),
+    ])
+    todos = fetchedTodos
+    priorities = fetchedPriorities
   } catch (err) {
     console.error('initApp error:', err)
   } finally {

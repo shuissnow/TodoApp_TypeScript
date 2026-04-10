@@ -19,4 +19,9 @@ public class CreateTodoRequest
     /// 期限日（省略可）
     /// </summary>
     public DateOnly? DueDate { get; set; }
+
+    /// <summary>
+    /// 優先度ID（省略可）
+    /// </summary>
+    public string? PriorityId { get; set; }
 }

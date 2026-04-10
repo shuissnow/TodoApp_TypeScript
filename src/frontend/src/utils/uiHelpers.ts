@@ -1,33 +1,22 @@
 import type { Priority } from '../types/todo'
 
+/** 優先度未設定時のフォールバック色（「低」扱い） */
+const PRIORITY_FALLBACK = { name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' }
+
 /**
  * 優先度バッジのDOM要素を生成する
  *
- * @param priority - 優先度（未設定の場合は「低」として扱う）
+ * @param priority - 優先度オブジェクト。null / undefined の場合は「低」として扱う
  * @returns バッジの `<span>` 要素
  */
-export const createPriorityBadge = (priority: Priority | undefined): HTMLElement => {
+export const createPriorityBadge = (priority: Priority | null | undefined): HTMLElement => {
   const badge = document.createElement('span')
-  const resolved = priority ?? 'low'
+  const resolved = priority ?? PRIORITY_FALLBACK
 
-  let label: string
-  let colorClass: string
-  switch (resolved) {
-    case 'high':
-      label = '高'
-      colorClass = 'bg-red-50 text-red-700'
-      break
-    case 'mid':
-      label = '中'
-      colorClass = 'bg-amber-50 text-amber-700'
-      break
-    default:
-      label = '低'
-      colorClass = 'bg-green-50 text-green-700'
-  }
-
-  badge.textContent = label
-  badge.className = `${colorClass} text-xs font-medium px-2 py-0.5 rounded-full`
+  badge.textContent = resolved.name
+  badge.style.color = resolved.foregroundColor
+  badge.style.backgroundColor = resolved.backgroundColor
+  badge.className = 'text-xs font-medium px-2 py-0.5 rounded-full'
   return badge
 }
 

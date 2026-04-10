@@ -19,7 +19,7 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     {
         DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        IQueryable<Todo> query = context.Todos;
+        IQueryable<Todo> query = context.Todos.Include(t => t.Priority);
 
         query = queryParams.Filter switch
         {
@@ -45,7 +45,7 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// </summary>
     /// <param name="id">TodoのID</param>
     /// <returns>該当するTodo。存在しない場合は null。</returns>
-    public async Task<Todo?> GetByIdAsync(int id) => await context.Todos.FindAsync(id);
+    public async Task<Todo?> GetByIdAsync(int id) => await context.Todos.Include(t => t.Priority).FirstOrDefaultAsync(t => t.Id == id);
 
     /// <summary>
     /// タスクを保存します。

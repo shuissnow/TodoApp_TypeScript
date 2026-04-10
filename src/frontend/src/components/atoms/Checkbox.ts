@@ -12,8 +12,7 @@ export const createCheckbox = (props: CheckboxProps): HTMLInputElement => {
   checkbox.checked = props.checked
   checkbox.disabled = props.disabled ?? false
   checkbox.dataset['id'] = props.dataId
-  checkbox.className =
-    'w-4 h-4 text-blue-500 rounded cursor-pointer flex-shrink-0 disabled:cursor-not-allowed'
+  checkbox.className = 'w-4 h-4 text-blue-500 rounded cursor-pointer flex-shrink-0 disabled:cursor-not-allowed'
   if (props.ariaLabel) {
     checkbox.setAttribute('aria-label', props.ariaLabel)
   }

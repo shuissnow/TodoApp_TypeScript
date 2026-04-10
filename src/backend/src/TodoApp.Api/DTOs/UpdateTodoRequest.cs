@@ -28,4 +28,9 @@ public class UpdateTodoRequest
     /// true のとき期限日を null にリセットする
     /// </summary>
     public bool? ResetDueDate { get; set; }
+
+    /// <summary>
+    /// 優先度ID（省略可）
+    /// </summary>
+    public string? PriorityId { get; set; }
 }
