@@ -16,6 +16,7 @@ export const createFooter = (): HTMLElement => {
   const links = document.createElement('div')
   links.className = 'flex gap-3.5'
 
+  // TODO:未実装
   const linkDefs = [
     { label: 'プライバシー', href: '#' },
     { label: '利用規約', href: '#' },

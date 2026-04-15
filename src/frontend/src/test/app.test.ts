@@ -1,4 +1,3 @@
-// CI動作確認用@v3
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Todo } from '../types/todo'
 
@@ -10,7 +9,7 @@ vi.mock('../services/api', () => ({
   deleteCompleted: vi.fn(),
 }))
 
-import * as api from '../services/api'
+import * as api from '../services/todoApi'
 import {
   addTodo,
   toggleTodo,

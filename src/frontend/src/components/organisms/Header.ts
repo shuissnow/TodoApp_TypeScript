@@ -49,10 +49,14 @@ export const createHeader = (): HTMLElement => {
   right.className = 'flex items-center gap-4'
 
   // TODO:未実装
-  const navLinks: string[] = ['ダッシュボード', 'レポート']
-  navLinks.forEach((label) => {
+  const navLinks = [
+    { label: 'ダッシュボード', href: '#' },
+    { label: 'レポート', href: '#' },
+    { label: 'マスタ管理', href: '#/master' },
+  ]
+  navLinks.forEach(({ label, href }) => {
     const a = document.createElement('a')
-    a.href = '#'
+    a.href = href
     a.textContent = label
     a.className = 'text-sm text-green-200 hover:text-green-50 transition-colors'
     right.appendChild(a)

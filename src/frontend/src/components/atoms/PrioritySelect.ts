@@ -1,4 +1,4 @@
-import type { Priority } from '../../types/todo'
+import type { Priority } from '../../types/priority'
 
 export interface PrioritySelectProps {
   id: string

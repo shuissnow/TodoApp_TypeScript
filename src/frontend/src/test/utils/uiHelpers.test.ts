@@ -2,9 +2,30 @@ import { describe, it, expect } from 'vitest'
 import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers'
 import type { Priority } from '../../types/todo'
 
-const HIGH: Priority = { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' }
-const MID: Priority = { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5' }
-const LOW: Priority = { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' }
+const HIGH: Priority = {
+  id: '001',
+  name: '高',
+  foregroundColor: '#EF4444',
+  backgroundColor: '#FEE2E2',
+  displayOrder: 1,
+  isDeleted: false,
+}
+const MID: Priority = {
+  id: '002',
+  name: '中',
+  foregroundColor: '#F97316',
+  backgroundColor: '#FFEDD5',
+  displayOrder: 2,
+  isDeleted: false,
+}
+const LOW: Priority = {
+  id: '003',
+  name: '低',
+  foregroundColor: '#3B82F6',
+  backgroundColor: '#DBEAFE',
+  displayOrder: 3,
+  isDeleted: false,
+}
 
 describe('createPriorityBadge', () => {
   describe('ラベル表示', () => {

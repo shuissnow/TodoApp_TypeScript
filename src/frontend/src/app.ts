@@ -1,12 +1,17 @@
-import type { FilterType, Priority, Todo, ViewType } from './types/todo'
+import type { Todo } from './types/todo'
+import type { FilterType } from './types/filtertype'
+import type { ViewType } from './types/viewtype'
+import type { Priority } from './types/priority'
+
 import {
   fetchTodos,
-  fetchPriorities,
   createTodo,
   updateTodo,
   deleteTodoById,
   deleteCompleted,
-} from './services/api'
+} from './services/todoApi'
+
+import { fetchAllPriorities, updatePriority as updatePriorityMaster } from './services/priorityApi'
 import { createTodoInput } from './components/molecules/TodoInput'
 import { createViewToggle } from './components/molecules/ViewToggle'
 import { createTaskListView } from './components/organisms/TaskListView'
@@ -14,6 +19,8 @@ import { createTaskBoardView } from './components/organisms/TaskBoardView'
 import { createFooter } from './components/organisms/Footer'
 import { createHeader } from './components/organisms/Header'
 import { createAppLayout } from './components/templates/AppLayout'
+import { createMasterTop } from './components/organisms/MasterTop'
+import { createMasterPriority } from './components/organisms/MasterPriority'
 import { DOM_IDS } from './utils/domIds'
 
 /** 全Todoの状態 */
@@ -43,7 +50,11 @@ const MAX_TEXT_LENGTH = 200
  * @param dueDate - 締め切り日（YYYY-MM-DD形式、省略可）
  * @param priorityId - 優先度ID（省略可）
  */
-export const addTodo = async (text: string, dueDate?: string, priorityId?: string): Promise<void> => {
+export const addTodo = async (
+  text: string,
+  dueDate?: string,
+  priorityId?: string,
+): Promise<void> => {
   const trimmed = text.trim()
   if (!trimmed || trimmed.length > MAX_TEXT_LENGTH) return
 
@@ -199,6 +210,37 @@ export const render = (): void => {
   const app = document.querySelector<HTMLDivElement>(DOM_IDS.APP)
   if (!app) return
 
+  const hash = window.location.hash
+  if (hash === '#/master') {
+    // マスタ管理画面を表示
+    const root = createAppLayout({
+      header: createHeader(),
+      contentChildren: [createMasterTop()],
+      footer: createFooter(),
+    })
+    app.replaceChildren()
+    app.appendChild(root)
+    return
+  } else if (hash == '#/master/priority') {
+    const root = createAppLayout({
+      header: createHeader(),
+      contentChildren: [
+        createMasterPriority(
+          priorities,
+          togglePriorityStatus,
+          updatePriorityName,
+          updatePriorityForeground,
+          updatePriorityBackground,
+        ),
+      ],
+      footer: createFooter(),
+    })
+    app.replaceChildren()
+    app.appendChild(root)
+    setupMasterPriorityEventListeners()
+    return
+  }
+
   // フィルターされたTodoを取得する。
   const filtered = getFilteredTodos()
 
@@ -323,48 +365,42 @@ const setupEventListeners = (): void => {
   })
 
   // 優先度インライン編集: バッジwrapクリックでselectに切り替え
-  document
-    .querySelectorAll<HTMLSpanElement>('[data-priority-display-id]')
-    .forEach((wrap) => {
-      wrap.addEventListener('click', () => {
-        const id = wrap.dataset['priorityDisplayId']
-        if (!id) return
-        const editSelect = document.querySelector<HTMLSelectElement>(
-          `[data-priority-edit-id="${id}"]`,
-        )
-        if (!editSelect) return
-        wrap.classList.add('hidden')
-        editSelect.classList.remove('hidden')
-        editSelect.focus()
-      })
+  document.querySelectorAll<HTMLSpanElement>('[data-priority-display-id]').forEach((wrap) => {
+    wrap.addEventListener('click', () => {
+      const id = wrap.dataset['priorityDisplayId']
+      if (!id) return
+      const editSelect = document.querySelector<HTMLSelectElement>(
+        `[data-priority-edit-id="${id}"]`,
+      )
+      if (!editSelect) return
+      wrap.classList.add('hidden')
+      editSelect.classList.remove('hidden')
+      editSelect.focus()
     })
+  })
 
   // 優先度インライン編集: change で保存
-  document
-    .querySelectorAll<HTMLSelectElement>('[data-priority-edit-id]')
-    .forEach((editSelect) => {
-      let saved = false
+  document.querySelectorAll<HTMLSelectElement>('[data-priority-edit-id]').forEach((editSelect) => {
+    let saved = false
 
-      editSelect.addEventListener('change', () => {
-        saved = true
-        const id = editSelect.dataset['priorityEditId']
-        if (!id) return
-        void updatePriority(Number(id), editSelect.value)
-      })
-
-      editSelect.addEventListener('blur', () => {
-        if (saved) return
-        // changeが発火しなかった場合（値変更なしでblur）はバッジに戻す
-        const id = editSelect.dataset['priorityEditId']
-        if (!id) return
-        const wrap = document.querySelector<HTMLSpanElement>(
-          `[data-priority-display-id="${id}"]`,
-        )
-        if (!wrap) return
-        editSelect.classList.add('hidden')
-        wrap.classList.remove('hidden')
-      })
+    editSelect.addEventListener('change', () => {
+      saved = true
+      const id = editSelect.dataset['priorityEditId']
+      if (!id) return
+      void updatePriority(Number(id), editSelect.value)
     })
+
+    editSelect.addEventListener('blur', () => {
+      if (saved) return
+      // changeが発火しなかった場合（値変更なしでblur）はバッジに戻す
+      const id = editSelect.dataset['priorityEditId']
+      if (!id) return
+      const wrap = document.querySelector<HTMLSpanElement>(`[data-priority-display-id="${id}"]`)
+      if (!wrap) return
+      editSelect.classList.add('hidden')
+      wrap.classList.remove('hidden')
+    })
+  })
 
   document
     .querySelector<HTMLButtonElement>(DOM_IDS.VIEW_TOGGLE_BTN)
@@ -381,6 +417,43 @@ const setupEventListeners = (): void => {
   })
 }
 
+const setupMasterPriorityEventListeners = (): void => {
+  // 期限日インライン編集: change で保存
+  document.querySelectorAll<HTMLInputElement>('[data-due-date-edit-id]').forEach((editInput) => {
+    let saved = false
+
+    editInput.addEventListener('change', () => {
+      saved = true
+      const id = editInput.dataset['dueDateEditId']
+      if (!id) return
+      void updateDueDate(Number(id), editInput.value)
+    })
+
+    editInput.addEventListener('blur', () => {
+      if (saved) return
+      // changeが発火しなかった場合（値変更なしでblur）はspanに戻す
+      const id = editInput.dataset['dueDateEditId']
+      if (!id) return
+      const span = document.querySelector<HTMLSpanElement>(`[data-due-date-display-id="${id}"]`)
+      if (!span) return
+      editInput.classList.add('hidden')
+      span.classList.remove('hidden')
+    })
+
+    editInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        saved = true // changeを抑制
+        const id = editInput.dataset['dueDateEditId']
+        if (!id) return
+        const span = document.querySelector<HTMLSpanElement>(`[data-due-date-display-id="${id}"]`)
+        if (!span) return
+        editInput.classList.add('hidden')
+        span.classList.remove('hidden')
+      }
+    })
+  })
+}
+
 /**
  * アプリを初期化する
  *
@@ -389,16 +462,88 @@ const setupEventListeners = (): void => {
  */
 const initApp = async (): Promise<void> => {
   isLoading = true
+  window.addEventListener('hashchange', () => {
+    render()
+  })
   render()
   try {
     const [fetchedTodos, fetchedPriorities] = await Promise.all([
       fetchTodos(),
-      fetchPriorities(),
+      fetchAllPriorities(),
     ])
     todos = fetchedTodos
     priorities = fetchedPriorities
   } catch (err) {
     console.error('initApp error:', err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+// 優先度マスタのEvent
+export const updatePriorityName = async (id: string, newName: string): Promise<void> => {
+  isLoading = true
+  render()
+  try {
+    const updated = await updatePriorityMaster(id, { name: newName })
+    priorities = priorities.map((p) => (p.id === id ? updated : p))
+  } catch (err) {
+    console.error(`${updatePriorityName} error:`, err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+// 優先度マスタのEvent
+export const updatePriorityForeground = async (
+  id: string,
+  newForeground: string,
+): Promise<void> => {
+  isLoading = true
+  render()
+  try {
+    const updated = await updatePriorityMaster(id, { foregroundColor: newForeground })
+    priorities = priorities.map((p) => (p.id === id ? updated : p))
+  } catch (err) {
+    console.error(`${updatePriorityForeground} error:`, err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+// 優先度マスタのEvent
+export const updatePriorityBackground = async (
+  id: string,
+  newBackground: string,
+): Promise<void> => {
+  isLoading = true
+  render()
+  try {
+    const updated = await updatePriorityMaster(id, { backgroundColor: newBackground })
+    priorities = priorities.map((p) => (p.id === id ? updated : p))
+  } catch (err) {
+    console.error(`${updatePriorityForeground} error:`, err)
+  } finally {
+    isLoading = false
+    render()
+  }
+}
+
+// 優先度マスタのEvent
+export const togglePriorityStatus = async (id: string): Promise<void> => {
+  const target = priorities.find((p) => p.id === id)
+  if (!target) return
+
+  isLoading = true
+  render()
+  try {
+    const updated = await updatePriorityMaster(id, { isDeleted: !target.isDeleted })
+    priorities = priorities.map((p) => (p.id === id ? updated : p))
+  } catch (err) {
+    console.error(`${togglePriorityStatus} error:`, err)
   } finally {
     isLoading = false
     render()

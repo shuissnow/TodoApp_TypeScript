@@ -22,6 +22,7 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
     disabled: isLoading,
     ariaLabel: `「${todo.text}」を完了にする`,
   })
+  li.appendChild(checkbox)
 
   const text = document.createElement('span')
   text.textContent = todo.text
@@ -29,17 +30,17 @@ export const createTodoItem = (todo: Todo, isLoading: boolean): HTMLElement => {
     'flex-1 text-sm',
     todo.completed ? 'line-through text-gray-400' : 'text-gray-700',
   ].join(' ')
+  li.appendChild(text)
 
+  // TODO: 削除ボタンを追加する
   const deleteButton = document.createElement('button')
   deleteButton.type = 'button'
   deleteButton.dataset['deleteId'] = String(todo.id)
   deleteButton.textContent = '削除'
   deleteButton.disabled = isLoading
-  deleteButton.className = 'px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed'
+  deleteButton.className =
+    'px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:cursor-not-allowed'
   deleteButton.setAttribute('aria-label', `「${todo.text}」を削除する`)
-
-  li.appendChild(checkbox)
-  li.appendChild(text)
   li.appendChild(deleteButton)
 
   return li

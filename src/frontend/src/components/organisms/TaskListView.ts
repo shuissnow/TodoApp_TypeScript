@@ -1,4 +1,5 @@
-import type { Priority, Todo } from '../../types/todo'
+import type { Todo } from '../../types/todo'
+import type { Priority } from '../../types/priority'
 import { createPrioritySelect } from '../atoms/PrioritySelect'
 import { createPriorityBadge, createLoadingOverlay } from '../../utils/uiHelpers'
 

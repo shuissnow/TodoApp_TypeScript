@@ -1,4 +1,4 @@
-import type { Priority } from '../../types/todo'
+import type { Priority } from '../../types/priority'
 import { createTextInput } from '../atoms/TextInput'
 import { createDateInput } from '../atoms/DateInput'
 import { createPrioritySelect } from '../atoms/PrioritySelect'
@@ -21,27 +21,26 @@ export const createTodoInput = (isLoading: boolean, priorities: Priority[]): HTM
     maxLength: 200,
     disabled: isLoading,
   })
+  container.appendChild(input)
 
   const dateInput = createDateInput({
     id: 'todo-deadline-input',
     disabled: isLoading,
   })
+  container.appendChild(dateInput)
 
   const prioritySelect = createPrioritySelect({
     id: 'todo-priority-select',
     disabled: isLoading,
     priorities,
   })
+  container.appendChild(prioritySelect)
 
   const button = createButton({
     id: 'todo-add-button',
     text: isLoading ? '追加中...' : '追加',
     disabled: isLoading,
   })
-
-  container.appendChild(input)
-  container.appendChild(dateInput)
-  container.appendChild(prioritySelect)
   container.appendChild(button)
 
   return container

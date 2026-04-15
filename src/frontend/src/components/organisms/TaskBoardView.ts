@@ -7,7 +7,6 @@ interface BoardColumn {
   todos: Todo[]
 }
 
-
 /**
  * カンバンボードのDOM要素を生成する
  *

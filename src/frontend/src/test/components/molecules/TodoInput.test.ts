@@ -3,9 +3,30 @@ import { createTodoInput } from '../../../components/molecules/TodoInput'
 import type { Priority } from '../../../types/todo'
 
 const PRIORITIES: Priority[] = [
-  { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
-  { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5' },
-  { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' },
+  {
+    id: '001',
+    name: '高',
+    foregroundColor: '#EF4444',
+    backgroundColor: '#FEE2E2',
+    displayOrder: 1,
+    isDeleted: false,
+  },
+  {
+    id: '002',
+    name: '中',
+    foregroundColor: '#F97316',
+    backgroundColor: '#FFEDD5',
+    displayOrder: 2,
+    isDeleted: false,
+  },
+  {
+    id: '003',
+    name: '低',
+    foregroundColor: '#3B82F6',
+    backgroundColor: '#DBEAFE',
+    displayOrder: 3,
+    isDeleted: false,
+  },
 ]
 
 describe('createTodoInput', () => {

@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { fetchActivePriorities } from '../../services/priorityApi'
 import {
-  fetchPriorities,
   fetchTodos,
   createTodo,
   updateTodo,
   deleteTodoById,
   deleteCompleted,
-} from '../../services/api'
+} from '../../services/todoApi'
 
 describe('fetchPriorities', () => {
   beforeEach(() => {
@@ -15,9 +15,27 @@ describe('fetchPriorities', () => {
 
   it('正常系: APIが200を返した場合、Priority配列を返す', async () => {
     const mockPriorities = [
-      { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2', displayOrder: 1 },
-      { id: '002', name: '中', foregroundColor: '#F97316', backgroundColor: '#FFEDD5', displayOrder: 2 },
-      { id: '003', name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE', displayOrder: 3 },
+      {
+        id: '001',
+        name: '高',
+        foregroundColor: '#EF4444',
+        backgroundColor: '#FEE2E2',
+        displayOrder: 1,
+      },
+      {
+        id: '002',
+        name: '中',
+        foregroundColor: '#F97316',
+        backgroundColor: '#FFEDD5',
+        displayOrder: 2,
+      },
+      {
+        id: '003',
+        name: '低',
+        foregroundColor: '#3B82F6',
+        backgroundColor: '#DBEAFE',
+        displayOrder: 3,
+      },
     ]
     vi.stubGlobal(
       'fetch',
@@ -27,7 +45,7 @@ describe('fetchPriorities', () => {
       }),
     )
 
-    const result = await fetchPriorities()
+    const result = await fetchActivePriorities()
 
     expect(result).toEqual(mockPriorities)
   })
@@ -39,24 +57,21 @@ describe('fetchPriorities', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    await fetchPriorities()
+    await fetchActivePriorities()
 
     expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/priorities'))
   })
 
   it('異常系: APIが500を返した場合、Errorをスローする', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
-    )
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }))
 
-    await expect(fetchPriorities()).rejects.toThrow('fetchPriorities failed: 500')
+    await expect(fetchActivePriorities()).rejects.toThrow('fetchPriorities failed: 500')
   })
 
   it('異常系: ネットワークエラーが発生した場合、Errorをスローする', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network Error')))
 
-    await expect(fetchPriorities()).rejects.toThrow('Network Error')
+    await expect(fetchActivePriorities()).rejects.toThrow('Network Error')
   })
 })
 
@@ -256,7 +271,12 @@ describe('createTodo', () => {
           text: 'テスト',
           completed: false,
           createdAt: '2026-04-01T00:00:00Z',
-          priority: { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
+          priority: {
+            id: '001',
+            name: '高',
+            foregroundColor: '#EF4444',
+            backgroundColor: '#FEE2E2',
+          },
         }),
     })
     vi.stubGlobal('fetch', mockFetch)
@@ -275,7 +295,12 @@ describe('createTodo', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () =>
-        Promise.resolve({ id: 1, text: 'テスト', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+        Promise.resolve({
+          id: 1,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
     })
     vi.stubGlobal('fetch', mockFetch)
 
@@ -405,7 +430,12 @@ describe('updateTodo', () => {
           text: 'テスト',
           completed: false,
           createdAt: '2026-04-01T00:00:00Z',
-          priority: { id: '001', name: '高', foregroundColor: '#EF4444', backgroundColor: '#FEE2E2' },
+          priority: {
+            id: '001',
+            name: '高',
+            foregroundColor: '#EF4444',
+            backgroundColor: '#FEE2E2',
+          },
         }),
     })
     vi.stubGlobal('fetch', mockFetch)
@@ -424,7 +454,12 @@ describe('updateTodo', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () =>
-        Promise.resolve({ id: TODO_ID, text: 'テスト', completed: false, createdAt: '2026-04-01T00:00:00Z' }),
+        Promise.resolve({
+          id: TODO_ID,
+          text: 'テスト',
+          completed: false,
+          createdAt: '2026-04-01T00:00:00Z',
+        }),
     })
     vi.stubGlobal('fetch', mockFetch)
 

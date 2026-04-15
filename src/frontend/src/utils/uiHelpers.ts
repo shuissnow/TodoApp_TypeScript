@@ -1,7 +1,6 @@
-import type { Priority } from '../types/todo'
-
+import type { Priority } from '../types/priority'
 /** 優先度未設定時のフォールバック色（「低」扱い） */
-const PRIORITY_FALLBACK = { name: '低', foregroundColor: '#3B82F6', backgroundColor: '#DBEAFE' }
+const PRIORITY_FALLBACK = { name: 'なし', foregroundColor: '#016630', backgroundColor: '#f9fafb' }
 
 /**
  * 優先度バッジのDOM要素を生成する
