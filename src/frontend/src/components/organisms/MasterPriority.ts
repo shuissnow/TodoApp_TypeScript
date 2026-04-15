@@ -4,13 +4,13 @@ import { createPriority } from '../../services/priorityApi'
 
 /**
  * 優先度マスタ管理画面を生成する。
- * 
- * @param priorities 
- * @param onToggleStatus 
- * @param onUpdateName 
- * @param onUpdateForegroundColor 
- * @param onUpdateBackgroundColor 
- * @returns 
+ *
+ * @param priorities
+ * @param onToggleStatus
+ * @param onUpdateName
+ * @param onUpdateForegroundColor
+ * @param onUpdateBackgroundColor
+ * @returns
  */
 export const createMasterPriority = (
   priorities: Priority[],
@@ -25,7 +25,7 @@ export const createMasterPriority = (
   // パンくずリストを生成する。
   section.appendChild(createBreadcrumb())
 
-  // タイトルを生成する。  
+  // タイトルを生成する。
   section.appendChild(createTitle())
 
   // コンテンツを生成する。
@@ -43,7 +43,7 @@ export const createMasterPriority = (
 
 /**
  * パンくずリストを生成する。
- * 
+ *
  * @returns HTMLElement
  */
 const createBreadcrumb = (): HTMLElement => {
@@ -52,7 +52,7 @@ const createBreadcrumb = (): HTMLElement => {
   nav.className = 'mb-4'
 
   // 順序付きリストを生成する。
-  const ol:HTMLOListElement = document.createElement('ol')
+  const ol: HTMLOListElement = document.createElement('ol')
   ol.className = 'flex items-center gap-1.5 text-sm text-green-700'
 
   // リストアイテム要素を生成する。
@@ -98,7 +98,7 @@ const createBreadcrumb = (): HTMLElement => {
 
 /**
  * タイトルを生成する。
- * 
+ *
  * @returns HTMLElement
  */
 const createTitle = (): HTMLElement => {
@@ -117,7 +117,7 @@ const createTitle = (): HTMLElement => {
 
 /**
  * コンテンツを生成する。
- * 
+ *
  * @returns HTMLElement
  */
 const createContent = (
@@ -572,7 +572,7 @@ const createNewRow = (displayOrder: number): HTMLTableRowElement => {
   saveBtn.textContent = '保存'
   saveBtn.className = 'px-3 py-1 rounded text-xs bg-blue-700 text-white hover:bg-blue-600'
 
-  saveBtn.addEventListener('click', async () => {
+  saveBtn.addEventListener('click', () => {
     const errors: string[] = []
     if (!nameInput.value || nameInput.value.length > 3) {
       errors.push('表示名は1〜3文字で入力してください')
@@ -589,21 +589,22 @@ const createNewRow = (displayOrder: number): HTMLTableRowElement => {
     }
 
     // id生成
-
-    try {
-      const created = await createPriority(
-        String(displayOrder).padStart(3, '0'),
-        nameInput.value,
-        foregroundInput.value,
-        backgroundInput.value,
-        displayOrder,
-      )
-      orderNumCell.textContent = String(created.displayOrder)
-      saveBtn.disabled = true
-      saveBtn.className = 'px-3 py-1 rounded text-xs bg-gray-400 text-white cursor-not-allowed'
-    } catch (err) {
-      console.error('addPriority error:', err)
-    }
+    void (async () => {
+      try {
+        const created = await createPriority(
+          String(displayOrder).padStart(3, '0'),
+          nameInput.value,
+          foregroundInput.value,
+          backgroundInput.value,
+          displayOrder,
+        )
+        orderNumCell.textContent = String(created.displayOrder)
+        saveBtn.disabled = true
+        saveBtn.className = 'px-3 py-1 rounded text-xs bg-gray-400 text-white cursor-not-allowed'
+      } catch (err) {
+        console.error('addPriority error:', err)
+      }
+    })()
   })
 
   actionCell.appendChild(saveBtn)

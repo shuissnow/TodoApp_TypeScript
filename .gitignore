@@ -43,6 +43,6 @@ appsettings.Production.json
 .mcp.json
 .serena/
 .claude/
-src/backend/Instructions/
-src/frontend/instructions/
-src/backend/あとでやること.md
+**/instructions/
+**/Instructions/
+**/あとでやること.md

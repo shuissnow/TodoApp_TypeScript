@@ -2,13 +2,13 @@ import type { Priority } from '../types/priority'
 import { BASE_URL } from './config'
 
 /**
- * 
+ *
  * @param id 優先度を作成します。
- * @param name 
- * @param foregroundColor 
- * @param backgroundColor 
- * @param displayOrder 
- * @returns 
+ * @param name
+ * @param foregroundColor
+ * @param backgroundColor
+ * @param displayOrder
+ * @returns
  */
 export const createPriority = async (
   id: string,
@@ -31,7 +31,7 @@ export const createPriority = async (
   })
 
   if (!response.ok) {
-    throw new Error(`${createPriority} failed: ${response.status}`)
+    throw new Error(`${createPriority.name} failed: ${response.status}`)
   }
 
   return response.json() as Promise<Priority>
@@ -46,7 +46,7 @@ export const createPriority = async (
 export const fetchAllPriorities = async (): Promise<Priority[]> => {
   const response: Response = await fetch(`${BASE_URL}/api/priorities/all`)
   if (!response.ok) {
-    throw new Error(`${fetchAllPriorities} failed: ${response.status}`)
+    throw new Error(`${fetchAllPriorities.name} failed: ${response.status}`)
   }
   return response.json() as Promise<Priority[]>
 }
@@ -83,7 +83,7 @@ export const updatePriority = async (
   })
 
   if (!response.ok) {
-    throw new Error(`${updatePriority} failed: ${response.status}`)
+    throw new Error(`${updatePriority.name} failed: ${response.status}`)
   }
   return response.json() as Promise<Priority>
 }

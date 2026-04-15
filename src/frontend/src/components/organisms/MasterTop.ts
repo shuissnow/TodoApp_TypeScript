@@ -1,17 +1,16 @@
-
 /**
  * マスタ管理画面を生成する。
- * 
- * @returns 
+ *
+ * @returns
  */
 export const createMasterTop = (): HTMLElement => {
   // 汎用セクションを生成する。
   const section: HTMLElement = document.createElement('section')
-  
+
   // パンくずリストを生成する。
   section.appendChild(createBreadcrumb())
 
-  // タイトルを生成する。  
+  // タイトルを生成する。
   section.appendChild(createTitle())
 
   // コンテンツを生成する。
@@ -22,7 +21,7 @@ export const createMasterTop = (): HTMLElement => {
 
 /**
  * パンくずリストを生成する。
- * 
+ *
  * @returns HTMLElement
  */
 const createBreadcrumb = (): HTMLElement => {
@@ -31,7 +30,7 @@ const createBreadcrumb = (): HTMLElement => {
   nav.className = 'mb-4'
 
   // 順序付きリストを生成する。
-  const ol:HTMLOListElement = document.createElement('ol')
+  const ol: HTMLOListElement = document.createElement('ol')
   ol.className = 'flex items-center gap-1.5 text-sm text-green-700'
 
   // リストアイテム要素を生成する。
@@ -90,7 +89,7 @@ const createContent = (): HTMLElement => {
 
 /**
  * マスタ管理画面のリンクを作成する
- * 
+ *
  * @param href a要素
  * @param label 表示名
  * @returns HTMLElement
@@ -98,8 +97,9 @@ const createContent = (): HTMLElement => {
 const createMasterCard = (href: string, label: string): HTMLElement => {
   const li: HTMLLIElement = document.createElement('li')
 
-  const card : HTMLAnchorElement= document.createElement('a')
-  card.className = 'flex items-center justify-between px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 font-medium hover:bg-green-100 hover:border-green-400 transition-colors'
+  const card: HTMLAnchorElement = document.createElement('a')
+  card.className =
+    'flex items-center justify-between px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 font-medium hover:bg-green-100 hover:border-green-400 transition-colors'
   card.href = href
 
   const text: HTMLSpanElement = document.createElement('span')
