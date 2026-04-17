@@ -1,8 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Api.DTOs;
 using TodoApp.Api.Models;
 using TodoApp.Api.Services;
-
 namespace TodoApp.Api.Controllers;
 
 /// <summary>
@@ -11,6 +12,7 @@ namespace TodoApp.Api.Controllers;
 [ApiController]
 [Route("api/todos")]
 [Produces("application/json")]
+[Authorize]
 public class TodosController(ITodoService service) : ControllerBase
 {
     /// <summary>
@@ -23,7 +25,8 @@ public class TodosController(ITodoService service) : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<Todo>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] TodoQueryParams queryParams)
     {
-        IEnumerable<Todo> todos = await service.GetAllAsync(queryParams);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!, System.Globalization.CultureInfo.InvariantCulture);
+        IEnumerable<Todo> todos = await service.GetAllAsync(queryParams, userId);
         return Ok(todos);
     }
 
@@ -39,7 +42,8 @@ public class TodosController(ITodoService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateTodoRequest request)
     {
-        Todo todo = await service.CreateAsync(request);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!, System.Globalization.CultureInfo.InvariantCulture);
+        Todo todo = await service.CreateAsync(request, userId);
         return Created("/api/todos", todo);
     }
 
@@ -58,7 +62,8 @@ public class TodosController(ITodoService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateTodoRequest request)
     {
-        Todo? todo = await service.UpdateAsync(id, request);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!, System.Globalization.CultureInfo.InvariantCulture);
+        Todo? todo = await service.UpdateAsync(id, request, userId);
         if (todo is null) return NotFound();
         return Ok(todo);
     }
@@ -71,7 +76,8 @@ public class TodosController(ITodoService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteCompletedAsync()
     {
-        await service.DeleteCompletedAsync();
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!, System.Globalization.CultureInfo.InvariantCulture);
+        await service.DeleteCompletedAsync(userId);
         return NoContent();
     }
 
@@ -86,7 +92,8 @@ public class TodosController(ITodoService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        bool deleted = await service.DeleteAsync(id);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!, System.Globalization.CultureInfo.InvariantCulture);
+        bool deleted = await service.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
         return NoContent();
     }

@@ -13,33 +13,38 @@ public interface ITodoService
     /// クエリパラメーターに基づいてタスク一覧を取得します。
     /// </summary>
     /// <param name="queryParams">フィルター・ソート条件</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>Todoリスト</returns>
-    Task<IEnumerable<Todo>> GetAllAsync(TodoQueryParams queryParams);
+    Task<IEnumerable<Todo>> GetAllAsync(TodoQueryParams queryParams, int userId);
 
     /// <summary>
     /// タスクを作成します。
     /// </summary>
     /// <param name="request">作成内容</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>作成されたTodo</returns>
-    Task<Todo> CreateAsync(CreateTodoRequest request);
+    Task<Todo> CreateAsync(CreateTodoRequest request, int userId);
 
     /// <summary>
     /// 指定したIDのタスクを更新します。
     /// </summary>
     /// <param name="id">TodoのID</param>
     /// <param name="request">更新内容</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>更新後のTodo。存在しない場合は null。</returns>
-    Task<Todo?> UpdateAsync(int id, UpdateTodoRequest request);
+    Task<Todo?> UpdateAsync(int id, UpdateTodoRequest request, int userId);
 
     /// <summary>
     /// 指定したIDのタスクを削除します。
     /// </summary>
     /// <param name="id">TodoのID</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>削除できた場合は true。存在しない場合は false。</returns>
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id, int userId);
 
     /// <summary>
     /// 完了済みタスクをすべて削除します。
     /// </summary>
-    Task DeleteCompletedAsync();
+    /// <param name="userId">ログイン中のユーザーID</param>
+    Task DeleteCompletedAsync(int userId);
 }

@@ -14,12 +14,13 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// クエリパラメーターに基づいてタスク一覧を取得します。
     /// </summary>
     /// <param name="queryParams">フィルター・ソート条件</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>Todoリスト</returns>
-    public async Task<IEnumerable<Todo>> GetAllAsync(TodoQueryParams queryParams)
+    public async Task<IEnumerable<Todo>> GetAllAsync(TodoQueryParams queryParams, int userId)
     {
         DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        IQueryable<Todo> query = context.Todos.Include(t => t.Priority);
+        IQueryable<Todo> query = context.Todos.Include(t => t.Priority).Where(t => t.UserId == userId);
 
         query = queryParams.Filter switch
         {
@@ -44,16 +45,20 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// 指定したIDのタスクを取得します。
     /// </summary>
     /// <param name="id">TodoのID</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>該当するTodo。存在しない場合は null。</returns>
-    public async Task<Todo?> GetByIdAsync(int id) => await context.Todos.Include(t => t.Priority).FirstOrDefaultAsync(t => t.Id == id);
+    public async Task<Todo?> GetByIdAsync(int id, int userId)
+        => await context.Todos.Include(t => t.Priority).FirstOrDefaultAsync(t => t.UserId == userId && t.Id == id);
 
     /// <summary>
     /// タスクを保存します。
     /// </summary>
     /// <param name="todo">保存するTodo</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>保存されたTodo</returns>
-    public async Task<Todo> CreateAsync(Todo todo)
+    public async Task<Todo> CreateAsync(Todo todo, int userId)
     {
+        todo.UserId = userId;
         context.Todos.Add(todo);
         await context.SaveChangesAsync();
         return todo;
@@ -63,8 +68,9 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// タスクを更新します。
     /// </summary>
     /// <param name="todo">更新するTodo</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>更新後のTodo</returns>
-    public async Task<Todo> UpdateAsync(Todo todo)
+    public async Task<Todo> UpdateAsync(Todo todo, int userId)
     {
         context.Todos.Update(todo);
         await context.SaveChangesAsync();
@@ -75,18 +81,20 @@ public class TodoRepository(AppDbContext context) : ITodoRepository
     /// 指定したIDのタスクを削除します。
     /// </summary>
     /// <param name="id">TodoのID</param>
+    /// <param name="userId">ログイン中のユーザーID</param>
     /// <returns>削除できた場合は true。存在しない場合は false。</returns>
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, int userId)
     {
-        int affectedRows = await context.Todos.Where(t => t.Id == id).ExecuteDeleteAsync();
+        int affectedRows = await context.Todos.Where(t => t.UserId == userId && t.Id == id).ExecuteDeleteAsync();
         return affectedRows > 0;
     }
 
     /// <summary>
     /// 完了済みタスクをすべて削除します。
     /// </summary>
-    public async Task DeleteCompletedAsync()
+    /// <param name="userId">ログイン中のユーザーID</param>
+    public async Task DeleteCompletedAsync(int userId)
     {
-        await context.Todos.Where(t => t.Completed).ExecuteDeleteAsync();
+        await context.Todos.Where(t => t.UserId == userId && t.Completed).ExecuteDeleteAsync();
     }
 }

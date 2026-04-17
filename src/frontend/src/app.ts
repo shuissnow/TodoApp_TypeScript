@@ -17,6 +17,9 @@ import {
   updatePriorityBackground,
   togglePriorityStatus,
 } from './actions/priorityActions'
+import { logoutAction } from './actions/authActions'
+import { createLoginPage } from './components/organisms/LoginPage'
+import { fetchMe } from './services/authApi'
 
 /**
  * フィルターを変更して画面を再描画する
@@ -42,11 +45,13 @@ export const toggleViewType = (): void => {
  * APIからTodo一覧・優先度一覧を並列取得し、初回描画を行う。
  * DOMContentLoaded イベントで呼び出される。
  */
-const initApp = async (): Promise<void> => {
+/**
+ * Todo一覧・優先度一覧を取得してストアに格納する
+ *
+ * ログイン直後および初回起動時（認証済み）に呼び出す。
+ */
+const initData = async (): Promise<void> => {
   store.isLoading = true
-  window.addEventListener('hashchange', () => {
-    render()
-  })
   render()
   try {
     const [fetchedTodos, fetchedPriorities] = await Promise.all([
@@ -56,10 +61,27 @@ const initApp = async (): Promise<void> => {
     store.todos = fetchedTodos
     store.priorities = fetchedPriorities
   } catch (err) {
-    console.error('initApp error:', err)
+    console.error('initData error:', err)
   } finally {
     store.isLoading = false
     render()
+  }
+}
+
+/**
+ * アプリを初期化する
+ *
+ * セッション確認後に初回描画を行い、認証済みの場合のみデータ取得を開始する。
+ * DOMContentLoaded イベントで呼び出される。
+ */
+const initApp = async (): Promise<void> => {
+  window.addEventListener('hashchange', () => {
+    render()
+  })
+  store.currentUser = await fetchMe()
+  render()
+  if (store.currentUser) {
+    void initData()
   }
 }
 
@@ -72,10 +94,23 @@ export const render = (): void => {
   const app = document.querySelector<HTMLDivElement>(DOM_IDS.APP)
   if (!app) return
 
+  if (!store.currentUser) {
+    app.replaceChildren(
+      createLoginPage(() => {
+        void initData()
+        render()
+      }),
+    )
+
+    return
+  }
+
   const hash = window.location.hash
   if (hash === '#/master') {
     const root = createAppLayout({
-      header: createHeader(),
+      header: createHeader(store.currentUser, () => {
+        void logoutAction()
+      }),
       contentChildren: [createMasterTop()],
       footer: createFooter(),
     })
@@ -84,14 +119,24 @@ export const render = (): void => {
     return
   } else if (hash === '#/master/priority') {
     const root = createAppLayout({
-      header: createHeader(),
+      header: createHeader(store.currentUser, () => {
+        void logoutAction()
+      }),
       contentChildren: [
         createMasterPriority(
           store.priorities,
-          (id) => { void togglePriorityStatus(id, render) },
-          (id, newName) => { void updatePriorityName(id, newName, render) },
-          (id, newFg) => { void updatePriorityForeground(id, newFg, render) },
-          (id, newBg) => { void updatePriorityBackground(id, newBg, render) },
+          (id) => {
+            void togglePriorityStatus(id, render)
+          },
+          (id, newName) => {
+            void updatePriorityName(id, newName, render)
+          },
+          (id, newFg) => {
+            void updatePriorityForeground(id, newFg, render)
+          },
+          (id, newBg) => {
+            void updatePriorityBackground(id, newBg, render)
+          },
         ),
       ],
       footer: createFooter(),
@@ -104,14 +149,24 @@ export const render = (): void => {
   app.replaceChildren()
 
   const root = createAppLayout({
-    header: createHeader(),
+    header: createHeader(store.currentUser, () => {
+      void logoutAction()
+    }),
     contentChildren: [
       createTodoTop(
         store,
-        (text, dueDate, priorityId) => { void addTodo(text, dueDate, priorityId, render) },
-        (id) => { void toggleTodo(id, render) },
-        (id, value) => { void updateDueDate(id, value, render) },
-        (id, priorityId) => { void updatePriority(id, priorityId, render) },
+        (text, dueDate, priorityId) => {
+          void addTodo(text, dueDate, priorityId, render)
+        },
+        (id) => {
+          void toggleTodo(id, render)
+        },
+        (id, value) => {
+          void updateDueDate(id, value, render)
+        },
+        (id, priorityId) => {
+          void updatePriority(id, priorityId, render)
+        },
         toggleViewType,
       ),
     ],

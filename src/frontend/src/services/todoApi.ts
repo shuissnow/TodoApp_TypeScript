@@ -8,7 +8,9 @@ import { BASE_URL } from './config'
  * @throws APIエラー時にErrorをスロー
  */
 export const fetchTodos = async (): Promise<Todo[]> => {
-  const response: Response = await fetch(`${BASE_URL}/api/todos`)
+  const response: Response = await fetch(`${BASE_URL}/api/todos`, {
+    credentials: 'include',
+  })
 
   if (!response.ok) {
     throw new Error(`fetchTodos failed: ${response.status}`)
@@ -42,6 +44,7 @@ export const createTodo = async (
   const response: Response = await fetch(`${BASE_URL}/api/todos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body),
   })
 
@@ -73,6 +76,7 @@ export const updateTodo = async (
   const response: Response = await fetch(`${BASE_URL}/api/todos/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(patch),
   })
 
@@ -92,6 +96,7 @@ export const updateTodo = async (
 export const deleteTodoById = async (id: number): Promise<void> => {
   const response: Response = await fetch(`${BASE_URL}/api/todos/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -107,6 +112,7 @@ export const deleteTodoById = async (id: number): Promise<void> => {
 export const deleteCompleted = async (): Promise<void> => {
   const response: Response = await fetch(`${BASE_URL}/api/todos/completed`, {
     method: 'DELETE',
+    credentials: 'include',
   })
 
   if (!response.ok) {

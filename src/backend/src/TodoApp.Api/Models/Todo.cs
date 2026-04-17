@@ -39,4 +39,14 @@ public class Todo
     /// 優先度（ナビゲーションプロパティ）
     /// </summary>
     public Priority? Priority { get; set; }
+
+    /// <summary>
+    /// ユーザーID（省略可）
+    /// </summary>
+    public int? UserId { get; set; }
+
+    /// <summary>
+    /// ユーザー（ナビゲーションプロパティ）
+    /// </summary>
+    public User? User { get; set; }
 }

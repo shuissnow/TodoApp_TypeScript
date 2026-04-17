@@ -11,7 +11,13 @@ vi.mock('../services/api', () => ({
 
 import * as api from '../services/todoApi'
 import { setFilter, render } from '../app'
-import { addTodo, toggleTodo, deleteTodo, clearCompleted, updateDueDate } from '../actions/todoActions'
+import {
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  clearCompleted,
+  updateDueDate,
+} from '../actions/todoActions'
 
 const makeTodo = (id: number, completed = false): Todo => ({
   id,

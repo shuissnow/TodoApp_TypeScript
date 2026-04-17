@@ -10,9 +10,36 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Todo> Todos => Set<Todo>();
     public DbSet<Priority> Priorities => Set<Priority>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Todo>(entity =>
+        {
+            entity.ToTable("todos");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            entity.Property(e => e.Text).HasColumnName("text").HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Completed).HasColumnName("completed").HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.DueDate).HasColumnName("due_date").HasColumnType("date").IsRequired(false);
+            entity.Property(e => e.PriorityId)
+                .HasColumnName("priority_id")
+                .HasColumnType("char(3)")
+                .IsRequired(false);
+            entity.HasOne(e => e.Priority)
+                .WithMany(p => p.Todos)
+                .HasForeignKey(e => e.PriorityId)
+                .HasConstraintName("FK_todos_priorities_priority_id")
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired(false);
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Todos)
+                .HasForeignKey(e => e.UserId)
+                .HasConstraintName("FK_todos_users_user_id")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<Priority>(entity =>
         {
             entity.ToTable("priorities");
@@ -49,24 +76,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             );
         });
 
-        modelBuilder.Entity<Todo>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("todos");
+            entity.ToTable("users");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
-            entity.Property(e => e.Text).HasColumnName("text").HasMaxLength(200).IsRequired();
-            entity.Property(e => e.Completed).HasColumnName("completed").HasDefaultValue(false);
+            entity.Property(e => e.Username).HasColumnName("username").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.PasswordHash).HasColumnName("password_hash").HasMaxLength(256).IsRequired();
             entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-            entity.Property(e => e.DueDate).HasColumnName("due_date").HasColumnType("date").IsRequired(false);
-            entity.Property(e => e.PriorityId)
-                .HasColumnName("priority_id")
-                .HasColumnType("char(3)")
-                .IsRequired(false);
-            entity.HasOne(e => e.Priority)
-                .WithMany(p => p.Todos)
-                .HasForeignKey(e => e.PriorityId)
-                .HasConstraintName("FK_todos_priorities_priority_id")
-                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(e => e.Username).IsUnique();
         });
     }
 }

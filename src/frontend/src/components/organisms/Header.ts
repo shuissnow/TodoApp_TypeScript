@@ -1,11 +1,15 @@
+import type { User } from '../../types/auth'
+
 /**
  * ヘッダーのDOM要素を生成する
  *
- * 左：ロゴ＋アプリ名、右：ナビリンク＋アバター
+ * 左：ロゴ＋アプリ名、右：ナビリンク＋アバター＋ログアウトボタン
  *
+ * @param currentUser - ログイン中のユーザー情報
+ * @param onLogout - ログアウトボタン押下時のコールバック
  * @returns `<header>` 要素
  */
-export const createHeader = (): HTMLElement => {
+export const createHeader = (currentUser: User, onLogout: () => void): HTMLElement => {
   const header = document.createElement('header')
   header.className = 'h-[52px] bg-green-800 px-5 flex items-center justify-between'
 
@@ -44,7 +48,7 @@ export const createHeader = (): HTMLElement => {
   left.appendChild(logoSvg)
   left.appendChild(appName)
 
-  // 右側: ナビリンク + アバター
+  // 右側: ナビリンク + アバター + ログアウトボタン
   const right = document.createElement('div')
   right.className = 'flex items-center gap-4'
 
@@ -62,14 +66,29 @@ export const createHeader = (): HTMLElement => {
     right.appendChild(a)
   })
 
+  // アバター（ユーザー名の頭文字を表示）
   const avatar = document.createElement('div')
   avatar.className =
     'w-7 h-7 rounded-full bg-green-600 border border-green-400 flex items-center justify-center'
+  avatar.setAttribute('aria-label', `ログイン中: ${currentUser.username}`)
+
   const initials = document.createElement('span')
-  initials.textContent = 'U'
+  initials.textContent = currentUser.username.charAt(0).toUpperCase()
   initials.className = 'text-xs text-green-50 font-medium'
   avatar.appendChild(initials)
   right.appendChild(avatar)
+
+  // ログアウトボタン
+  const logoutButton = document.createElement('button')
+  logoutButton.type = 'button'
+  logoutButton.textContent = 'ログアウト'
+  logoutButton.className =
+    'text-sm text-green-200 hover:text-green-50 transition-colors cursor-pointer'
+  logoutButton.setAttribute('aria-label', 'ログアウト')
+  logoutButton.addEventListener('click', () => {
+    void onLogout()
+  })
+  right.appendChild(logoutButton)
 
   header.appendChild(left)
   header.appendChild(right)

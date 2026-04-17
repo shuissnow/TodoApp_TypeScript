@@ -20,6 +20,7 @@ export const createPriority = async (
   const response: Response = await fetch(`${BASE_URL}/api/priorities`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({
       id,
       name,
@@ -44,7 +45,9 @@ export const createPriority = async (
  * @throws APIエラー時にErrorをスロー
  */
 export const fetchAllPriorities = async (): Promise<Priority[]> => {
-  const response: Response = await fetch(`${BASE_URL}/api/priorities/all`)
+  const response: Response = await fetch(`${BASE_URL}/api/priorities/all`, {
+    credentials: 'include',
+  })
   if (!response.ok) {
     throw new Error(`${fetchAllPriorities.name} failed: ${response.status}`)
   }
@@ -58,7 +61,9 @@ export const fetchAllPriorities = async (): Promise<Priority[]> => {
  * @throws APIエラー時にErrorをスロー
  */
 export const fetchActivePriorities = async (): Promise<Priority[]> => {
-  const response: Response = await fetch(`${BASE_URL}/api/priorities`)
+  const response: Response = await fetch(`${BASE_URL}/api/priorities`, {
+    credentials: 'include',
+  })
   if (!response.ok) {
     throw new Error(`${fetchActivePriorities.name} failed: ${response.status}`)
   }
@@ -79,6 +84,7 @@ export const updatePriority = async (
   const response: Response = await fetch(`${BASE_URL}/api/priorities/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(patch),
   })
 

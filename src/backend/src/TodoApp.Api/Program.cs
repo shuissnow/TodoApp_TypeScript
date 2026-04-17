@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
@@ -53,11 +54,49 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 // ヘルスチェックを登録する（GET /health でDB接続状態を確認できる）
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
 
+// Cookie 認証を登録する。
+// ログイン時に暗号化された Cookie をブラウザへ発行し、以降のリクエストで自動送信させる。
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        // ブラウザに保存される Cookie の名前
+        options.Cookie.Name = "todo_session";
+        // JavaScript から Cookie を読めないようにする（XSS 攻撃対策）
+        options.Cookie.HttpOnly = true;
+        // 他サイトからのリクエストに Cookie を付けない（CSRF 攻撃対策）
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        // HTTPS 接続のときは Secure 属性（通信経路の暗号化）を自動で付ける
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        // ログイン後 8 時間で Cookie が期限切れになる
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        // アクセスするたびに有効期限を 8 時間リセットする（操作中に突然ログアウトされるのを防ぐ）
+        options.SlidingExpiration = true;
+        // 未ログインでアクセスした場合、通常はログインページへ 302 リダイレクトするが、
+        // API では HTML ページへのリダイレクトは不要なので 401 Unauthorized に変換する
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        // アクセス権限がない場合も同様に、302 リダイレクトを 403 Forbidden に変換する
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+// [Authorize] 属性によるアクセス制御（認可）を有効化する
+builder.Services.AddAuthorization();
+
 // リポジトリ・サービスを DI コンテナに登録する（スコープ単位でインスタンスを生成）
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
+// 認証機能に必要なリポジトリ・サービスを登録する
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // MVC コントローラーと OpenAPI（Swagger）仕様の生成を有効化する
 builder.Services.AddControllers();
@@ -73,7 +112,9 @@ if (builder.Environment.IsDevelopment())
         {
             policy.WithOrigins("http://localhost:5173")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  // Cookie 付きリクエストを許可する（これがないとブラウザが Cookie を送信しない）
+                  .AllowCredentials();
         });
     });
 }
@@ -98,9 +139,11 @@ if (app.Environment.IsDevelopment())
         using (IServiceScope scope = app.Services.CreateScope())
         {
             AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-#pragma warning disable S6966 // Awaitable method should be used
-            db.Database.Migrate();
-#pragma warning restore S6966 // Awaitable method should be used
+            await db.Database.MigrateAsync();
+
+            // admin ユーザーが存在しない場合のみ、appsettings.Development.json の SeedUser 設定をもとに作成する
+            IAuthService authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+            await authService.SeedAdminUserAsync();
         }
     }
     catch (Exception ex)
@@ -109,11 +152,14 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+// Cookie を読んで「誰がアクセスしているか」を確認する（UseAuthorization より先に呼ぶ必要がある）
+app.UseAuthentication();
+// [Authorize] が付いたエンドポイントへのアクセス可否を判断する
+app.UseAuthorization();
+
 // コントローラーのルーティングを登録する
 app.MapControllers();
 // ヘルスチェックエンドポイント（GET /health）を登録する
 app.MapHealthChecks("/health");
 // アプリを起動し、リクエストの待ち受けを開始する
-#pragma warning disable S6966 // Awaitable method should be used
-app.Run();
-#pragma warning restore S6966 // Awaitable method should be used
+await app.RunAsync();
