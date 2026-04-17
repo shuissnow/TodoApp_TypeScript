@@ -1,0 +1,24 @@
+# 概要:
+# EC2 一時検証用オーバーライドファイル。docker-compose.yml の設定を上書き・追加する。
+# ローカル PostgreSQL コンテナを使用し、マイグレーションを自動実行する。
+# 使い方: docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d
+
+services:
+  frontend:
+    ports:
+      # EC2 の Elastic IP に対して HTTP アクセスを受け付ける
+      - "80:80"
+    restart: unless-stopped
+
+  backend:
+    restart: unless-stopped
+    environment:
+      # Development モードで起動することで、マイグレーションと admin ユーザーのシードを自動実行する
+      # 接続文字列は docker-compose.yml のベース設定（Host=db）が使われる
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  db:
+    # docker-compose.prod.yml では profiles: [dev] が設定されているが、
+    # このファイルでは profiles を空にしてローカル DB コンテナを有効化する
+    profiles: []
+    restart: unless-stopped
