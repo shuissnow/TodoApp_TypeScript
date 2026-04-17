@@ -1,7 +1,7 @@
 # タスクリスト — AWS EC2 CD（自動デプロイ）
 
 **作成日:** 2026-04-17  
-**ステータス:** 進行中
+**ステータス:** 完了
 
 ---
 
@@ -36,8 +36,8 @@
 ## Phase 4: GitHub Actions CD ワークフロー（実装）
 
 - [x] GitHub Secrets に `EC2_HOST`・`EC2_USER`・`EC2_SSH_KEY` を登録する
-- [ ] `.github/workflows/cd.yml` を新規作成する
-- [ ] main に push して CD が自動実行されることを確認する
+- [x] `.github/workflows/cd.yml` を新規作成する
+- [x] main に push して CD が自動実行されることを確認する
 
 ---
 
@@ -45,13 +45,13 @@
 
 - [x] ブラウザで `http://<Elastic IP>` にアクセスしてフロントエンドが表示されることを確認する
 - [x] API が正常に応答することを確認する（ログイン・Todo の CRUD）
-- [ ] GitHub Actions のログで CD が成功していることを確認する
+- [x] GitHub Actions のログで CD が成功していることを確認する
 
 ---
 
 ## Phase 6: 削除（検証後）
 
-- [ ] EC2 インスタンスを終了する
-- [ ] Elastic IP を解放する
-- [ ] Key Pair を削除する
-- [ ] Security Group を削除する
+- [x] EC2 インスタンスを終了する
+- [x] Elastic IP を解放する
+- [x] Key Pair を削除する
+- [x] Security Group を削除する
