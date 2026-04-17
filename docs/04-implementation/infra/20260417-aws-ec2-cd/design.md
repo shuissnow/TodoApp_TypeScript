@@ -57,61 +57,60 @@ SSH は自分の IP のみに制限し、不正アクセスを防ぐ。
 
 ## 3. docker compose 設計
 
-EC2 環境向けに `docker-compose.prod.yml` を新規作成する。  
-既存の `docker-compose.yml`（開発用）は変更しない。
+既存ファイルを活用し、EC2 専用のオーバーライドファイルを新規作成する。
 
-### サービス構成
+| ファイル | 役割 | 変更 |
+|---------|------|------|
+| `docker-compose.yml` | ベース設定（開発・本番共通） | 変更なし |
+| `docker-compose.prod.yml` | Aurora 本番用オーバーライド | 変更なし |
+| `docker-compose.ec2.yml` | EC2 一時検証用オーバーライド | **新規作成** |
+
+### EC2 起動コマンド
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d
+```
+
+### `docker-compose.ec2.yml` の内容
 
 ```yaml
 services:
-  nginx:
-    build: ./frontend        # Vite ビルド + Nginx
+  frontend:
     ports:
       - "80:80"
-    depends_on:
-      - backend
+    restart: unless-stopped
 
   backend:
-    build: ./backend
+    restart: unless-stopped
     environment:
-      - ConnectionStrings__DefaultConnection=...
-      - JwtSettings__SecretKey=...
-    depends_on:
-      - db
+      - ASPNETCORE_ENVIRONMENT=Development  # 起動時にマイグレーション・シードを自動実行
 
   db:
-    image: postgres:16
-    environment:
-      - POSTGRES_DB=todoapp
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=...
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-volumes:
-  db_data:
+    profiles: []  # docker-compose.prod.yml の profiles: [dev] を上書きし、ローカル DB を有効化
+    restart: unless-stopped
 ```
 
-環境変数（DB パスワード・JWT キー）は EC2 上の `.env` ファイルで管理し、リポジトリには含めない。
+### なぜ `ASPNETCORE_ENVIRONMENT=Development` か
 
-### フロントエンド Dockerfile（本番用）
+- Development モードでは起動時にマイグレーションと admin ユーザーのシードが自動実行される
+- フロントエンドと API は同一オリジン（Nginx がプロキシ）のため CORS は問題なし
+- appsettings.Development.json の接続文字列より環境変数が優先されるため、ローカル DB に接続される
 
-マルチステージビルドで Vite ビルド → Nginx 配信を行う。
+### `.env` ファイル（EC2 上で手動作成）
 
-```dockerfile
-# Stage 1: ビルド
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Stage 2: 配信
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 ```
+POSTGRES_DB=todoapp
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<任意のパスワード>
+```
+
+### 既存ファイルの活用
+
+| ファイル | 内容 | 変更 |
+|---------|------|------|
+| `frontend/Dockerfile` | マルチステージビルド（builder + nginx） | 変更なし |
+| `frontend/nginx.conf` | `/api/` を `backend:8080` にプロキシ | 変更なし |
+| `backend/Dockerfile` | .NET 9 ビルド・実行（ポート 8080） | 変更なし |
 
 ---
 
@@ -167,7 +166,7 @@ sudo usermod -aG docker ubuntu
 newgrp docker
 
 # リポジトリのクローン
-git clone https://github.com/<owner>/TodoApp.git ~/TodoApp
+git clone https://github.com/shuissnow/TodoApp_TypeScript.git ~/TodoApp
 
 # .env ファイルの作成（DB パスワード・JWT キーを設定）
 cp ~/TodoApp/src/.env.example ~/TodoApp/src/.env

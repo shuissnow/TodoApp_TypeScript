@@ -20,17 +20,16 @@
 - [x] Docker および docker compose plugin をインストールする
 - [x] Git をインストールする
 - [x] `ubuntu` ユーザーを docker グループに追加する
-- [ ] リポジトリを EC2 上にクローンする
+- [x] リポジトリを EC2 上にクローンする
 - [ ] `.env` ファイルを作成し、DB パスワード・JWT キーを設定する
 
 ---
 
-## Phase 3: docker compose 本番設定（実装）
+## Phase 3: docker compose EC2 設定（実装）
 
-- [ ] `src/docker-compose.prod.yml` を新規作成する
-- [ ] フロントエンド用 `Dockerfile.prod` を新規作成する（マルチステージビルド）
-- [ ] フロントエンド用 `nginx.conf` を新規作成する
-- [ ] EC2 上で `docker compose -f docker-compose.prod.yml up --build -d` が通ることを手動確認する
+- [x] `src/docker-compose.ec2.yml` を新規作成する
+- [ ] `.env` ファイルを EC2 上に作成する（`POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD`）
+- [ ] EC2 上で `docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d` が通ることを手動確認する
 
 ---
 
