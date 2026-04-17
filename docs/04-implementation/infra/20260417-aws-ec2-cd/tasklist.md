@@ -28,7 +28,7 @@
 ## Phase 3: docker compose EC2 設定（実装）
 
 - [x] `src/docker-compose.ec2.yml` を新規作成する
-- [ ] `.env` ファイルを EC2 上に作成する（`POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD`）
+- [x] `.env` ファイルを EC2 上に作成する（`POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD`）
 - [ ] EC2 上で `docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d` が通ることを手動確認する
 
 ---
