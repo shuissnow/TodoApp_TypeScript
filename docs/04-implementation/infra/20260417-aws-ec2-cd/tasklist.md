@@ -21,7 +21,7 @@
 - [x] Git をインストールする
 - [x] `ubuntu` ユーザーを docker グループに追加する
 - [x] リポジトリを EC2 上にクローンする
-- [ ] `.env` ファイルを作成し、DB パスワード・JWT キーを設定する
+- [x] `.env` ファイルを作成し、DB パスワード・JWT キーを設定する
 
 ---
 
@@ -29,13 +29,13 @@
 
 - [x] `src/docker-compose.ec2.yml` を新規作成する
 - [x] `.env` ファイルを EC2 上に作成する（`POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD`）
-- [ ] EC2 上で `docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d` が通ることを手動確認する
+- [x] EC2 上で `docker compose -f docker-compose.yml -f docker-compose.ec2.yml up --build -d` が通ることを手動確認する
 
 ---
 
 ## Phase 4: GitHub Actions CD ワークフロー（実装）
 
-- [ ] GitHub Secrets に `EC2_HOST`・`EC2_USER`・`EC2_SSH_KEY` を登録する
+- [x] GitHub Secrets に `EC2_HOST`・`EC2_USER`・`EC2_SSH_KEY` を登録する
 - [ ] `.github/workflows/cd.yml` を新規作成する
 - [ ] main に push して CD が自動実行されることを確認する
 
@@ -43,8 +43,8 @@
 
 ## Phase 5: 動作確認
 
-- [ ] ブラウザで `http://<Elastic IP>` にアクセスしてフロントエンドが表示されることを確認する
-- [ ] API が正常に応答することを確認する（ログイン・Todo の CRUD）
+- [x] ブラウザで `http://<Elastic IP>` にアクセスしてフロントエンドが表示されることを確認する
+- [x] API が正常に応答することを確認する（ログイン・Todo の CRUD）
 - [ ] GitHub Actions のログで CD が成功していることを確認する
 
 ---
